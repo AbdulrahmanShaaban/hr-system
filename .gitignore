@@ -48,3 +48,6 @@ apps/backend/generated/prisma
 
 # Agent
 .agent
+
+# Playwright MCP
+.playwright-mcp

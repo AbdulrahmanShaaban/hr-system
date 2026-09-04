@@ -51,12 +51,12 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('jwt.secret'),
-        expiresIn: this.configService.get<string>('jwt.expiresIn', '15m'),
+        secret: this.configService.get<string>('jwt.secret')!,
+        expiresIn: this.configService.get<string>('jwt.expiresIn', '15m') as any,
       }),
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('jwtRefresh.secret'),
-        expiresIn: this.configService.get<string>('jwtRefresh.expiresIn', '7d'),
+        secret: this.configService.get<string>('jwtRefresh.secret')!,
+        expiresIn: this.configService.get<string>('jwtRefresh.expiresIn', '7d') as any,
       }),
     ]);
 
@@ -86,7 +86,7 @@ export class AuthService {
   async refreshTokens(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>('jwtRefresh.secret'),
+        secret: this.configService.get<string>('jwtRefresh.secret')!,
       });
 
       const user = await this.prisma.user.findUnique({
@@ -124,12 +124,12 @@ export class AuthService {
 
       const [newAccessToken, newRefreshToken] = await Promise.all([
         this.jwtService.signAsync(newPayload, {
-          secret: this.configService.get<string>('jwt.secret'),
-          expiresIn: this.configService.get<string>('jwt.expiresIn', '15m'),
+          secret: this.configService.get<string>('jwt.secret')!,
+          expiresIn: this.configService.get<string>('jwt.expiresIn', '15m') as any,
         }),
         this.jwtService.signAsync(newPayload, {
-          secret: this.configService.get<string>('jwtRefresh.secret'),
-          expiresIn: this.configService.get<string>('jwtRefresh.expiresIn', '7d'),
+          secret: this.configService.get<string>('jwtRefresh.secret')!,
+          expiresIn: this.configService.get<string>('jwtRefresh.expiresIn', '7d') as any,
         }),
       ]);
 
