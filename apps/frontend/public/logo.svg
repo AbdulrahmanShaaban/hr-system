@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#1E1B4B"/>
+    </linearGradient>
+  </defs>
+  <!-- Qaf mark: geometric circle with two dots above, modern SaaS style -->
+  <!-- Main circle body -->
+  <circle cx="24" cy="26" r="14" fill="url(#logoGrad)"/>
+  <!-- Two dots of Qaf (ق) - positioned above the circle -->
+  <circle cx="18" cy="8" r="3" fill="url(#logoGrad)"/>
+  <circle cx="30" cy="8" r="3" fill="url(#logoGrad)"/>
+  <!-- Subtle tail stroke extending from circle bottom-right -->
+  <path d="M38 26 C42 26, 44 30, 40 34" stroke="url(#logoGrad)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+</svg>

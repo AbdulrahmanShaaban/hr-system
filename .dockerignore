@@ -1,0 +1,12 @@
+node_modules
+dist
+.next
+.git
+.agent
+*.log
+.DS_Store
+coverage
+.nyc_output
+.env
+.env.*
+!.env.example

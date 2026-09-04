@@ -1,0 +1,42 @@
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { RoleService } from './role.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Prisma } from '@prisma/client';
+
+@Controller('roles')
+@UseGuards(JwtAuthGuard)
+export class RoleController {
+  constructor(private readonly roleService: RoleService) {}
+
+  @Get()
+  findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.roleService.findAll(tenantId, query);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.roleService.findOne(id);
+  }
+
+  @Post()
+  create(@CurrentTenant() tenantId: string, @Body() data: Prisma.RoleCreateInput) {
+    return this.roleService.create({ ...data, tenant: { connect: { id: tenantId } } });
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() data: Prisma.RoleUpdateInput) {
+    return this.roleService.update(id, data);
+  }
+
+  @Put(':id/permissions')
+  assignPermissions(@Param('id') id: string, @Body('permissionIds') permissionIds: string[]) {
+    return this.roleService.assignPermissions(id, permissionIds);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.roleService.remove(id);
+  }
+}
