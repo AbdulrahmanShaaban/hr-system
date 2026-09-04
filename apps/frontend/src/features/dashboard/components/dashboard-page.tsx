@@ -27,7 +27,7 @@ export function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Welcome back{user?.name ? `, ${user.name}` : ""}
+          Welcome back{user?.employee ? `, ${user.employee.firstName}` : ""}
         </h1>
         <p className="mt-1 text-muted-foreground">
           Here&apos;s what&apos;s happening with your organization today.

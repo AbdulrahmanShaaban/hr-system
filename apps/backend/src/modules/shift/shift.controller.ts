@@ -9,19 +9,20 @@ import {
 } from '@nestjs/common';
 import { ShiftService } from './shift.service';
 import { CreateShiftDto, UpdateShiftDto } from './dto/shift.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('shifts')
 export class ShiftController {
   constructor(private readonly shiftService: ShiftService) {}
 
   @Post()
-  async create(@Body() dto: CreateShiftDto) {
-    return this.shiftService.create('tenant-id-placeholder', dto);
+  async create(@CurrentTenant() tenantId: string, @Body() dto: CreateShiftDto) {
+    return this.shiftService.create(tenantId, dto);
   }
 
   @Get()
-  async findAll() {
-    return this.shiftService.findAll('tenant-id-placeholder');
+  async findAll(@CurrentTenant() tenantId: string) {
+    return this.shiftService.findAll(tenantId);
   }
 
   @Get(':id')

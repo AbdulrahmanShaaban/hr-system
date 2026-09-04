@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { ClockInDto, ClockOutDto, GetAttendanceDto } from './dto/attendance.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('attendance')
 export class AttendanceController {
@@ -17,14 +19,14 @@ export class AttendanceController {
 
   @Post('clock-in')
   @HttpCode(HttpStatus.OK)
-  async clockIn(@Body() dto: ClockInDto) {
-    return this.attendanceService.clockIn('employee-id-placeholder', dto.notes);
+  async clockIn(@CurrentUser('employeeId') employeeId: string, @Body() dto: ClockInDto) {
+    return this.attendanceService.clockIn(employeeId, dto.notes);
   }
 
   @Post('clock-out')
   @HttpCode(HttpStatus.OK)
-  async clockOut(@Body() dto: ClockOutDto) {
-    return this.attendanceService.clockOut('employee-id-placeholder', dto.notes);
+  async clockOut(@CurrentUser('employeeId') employeeId: string, @Body() dto: ClockOutDto) {
+    return this.attendanceService.clockOut(employeeId, dto.notes);
   }
 
   @Get('employee/:employeeId')
@@ -37,7 +39,7 @@ export class AttendanceController {
   }
 
   @Get()
-  async findAll() {
-    return this.attendanceService.findAll('tenant-id-placeholder');
+  async findAll(@CurrentTenant() tenantId: string) {
+    return this.attendanceService.findAll(tenantId);
   }
 }

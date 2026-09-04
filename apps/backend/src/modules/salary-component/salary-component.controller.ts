@@ -9,19 +9,20 @@ import {
 } from '@nestjs/common';
 import { SalaryComponentService } from './salary-component.service';
 import { CreateSalaryComponentDto, UpdateSalaryComponentDto } from './dto/salary-component.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('salary-components')
 export class SalaryComponentController {
   constructor(private readonly salaryComponentService: SalaryComponentService) {}
 
   @Post()
-  async create(@Body() dto: CreateSalaryComponentDto) {
-    return this.salaryComponentService.create('tenant-id-placeholder', dto);
+  async create(@CurrentTenant() tenantId: string, @Body() dto: CreateSalaryComponentDto) {
+    return this.salaryComponentService.create(tenantId, dto);
   }
 
   @Get()
-  async findAll() {
-    return this.salaryComponentService.findAll('tenant-id-placeholder');
+  async findAll(@CurrentTenant() tenantId: string) {
+    return this.salaryComponentService.findAll(tenantId);
   }
 
   @Get(':id')

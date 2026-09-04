@@ -8,19 +8,20 @@ import {
 } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/document.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('documents')
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
 
   @Post()
-  async create(@Body() dto: CreateDocumentDto) {
-    return this.documentService.create('tenant-id-placeholder', dto);
+  async create(@CurrentTenant() tenantId: string, @Body() dto: CreateDocumentDto) {
+    return this.documentService.create(tenantId, dto);
   }
 
   @Get()
-  async findAll() {
-    return this.documentService.findAll('tenant-id-placeholder');
+  async findAll(@CurrentTenant() tenantId: string) {
+    return this.documentService.findAll(tenantId);
   }
 
   @Get('employee/:employeeId')

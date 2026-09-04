@@ -10,19 +10,20 @@ import {
 import { PayrollService } from './payroll.service';
 import { CreateCycleDto } from './dto/create-cycle.dto';
 import { CreateAdjustmentDto } from './dto/create-adjustment.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('payroll')
 export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {}
 
   @Post('cycles')
-  async createCycle(@Body() dto: CreateCycleDto) {
-    return this.payrollService.createCycle('tenant-id-placeholder', dto.month, dto.year);
+  async createCycle(@CurrentTenant() tenantId: string, @Body() dto: CreateCycleDto) {
+    return this.payrollService.createCycle(tenantId, dto.month, dto.year);
   }
 
   @Get('cycles')
-  async listCycles() {
-    return this.payrollService.listCycles('tenant-id-placeholder');
+  async listCycles(@CurrentTenant() tenantId: string) {
+    return this.payrollService.listCycles(tenantId);
   }
 
   @Post('cycles/:id/process')

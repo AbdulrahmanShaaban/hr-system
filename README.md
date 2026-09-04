@@ -8,6 +8,7 @@
 
 | Role | Email | Password |
 |------|-------|----------|
+| Admin | admin@acme.com | password123 |
 | Owner | owner@qawam.sa | Owner@1234 |
 | HR Manager | hr@qawam.sa | Hr@12345 |
 | Accountant | accountant@qawam.sa | Accountant@123 |
@@ -20,8 +21,8 @@
 
 | Layer | Technology |
 |-------|-----------|
-| **Backend** | Node.js + NestJS, TypeScript, Prisma ORM |
-| **Frontend** | Next.js (App Router), React, TypeScript, TailwindCSS |
+| **Backend** | Node.js + NestJS 12, TypeScript 6, Prisma ORM |
+| **Frontend** | Next.js 16 (App Router), React, TypeScript 7, TailwindCSS |
 | **Database** | PostgreSQL 16 |
 | **Queue** | BullMQ + Redis |
 | **Search** | Meilisearch (Arabic + English full-text) |
@@ -51,6 +52,7 @@ npm install
 npx prisma migrate dev
 npx prisma db seed
 npm run start:dev
+# Backend runs on http://localhost:4000
 ```
 
 ### 3. Setup frontend
@@ -58,6 +60,7 @@ npm run start:dev
 cd apps/frontend
 npm install
 npm run dev
+# Frontend runs on http://localhost:3000
 ```
 
 ### 4. Or use Docker for everything
@@ -67,20 +70,11 @@ docker-compose up -d
 
 ---
 
-## NestJS Backend Documentation
+## API Documentation
 
-This backend is built with NestJS — a progressive Node.js framework for building efficient and scalable server-side applications.
+Swagger/OpenAPI documentation available at `http://localhost:4000/api/docs` when the backend is running.
 
-### Key NestJS Concepts Used
-- **Modules**: Feature-based module organization (Auth, Employee, Payroll, etc.)
-- **Providers**: Services with dependency injection for business logic
-- **Controllers**: RESTful API endpoints with decorators
-- **Guards**: JWT authentication and role-based authorization
-- **Interceptors**: Audit logging for sensitive operations
-- **Pipes**: Input validation using class-validator
-- **Decorators**: Custom decorators for current user, tenant, and permissions
-
-### API Endpoints
+### Key Endpoints
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | /api/v1/auth/login | Login with email/password |
@@ -91,15 +85,11 @@ This backend is built with NestJS — a progressive Node.js framework for buildi
 | POST | /api/v1/employees | Create new employee |
 | GET | /api/v1/payroll/cycles | List payroll cycles |
 | POST | /api/v1/payroll/cycles/:id/process | Process payroll cycle |
-| POST | /api/v1/payroll/cycles/:id/finalize | Finalize payroll cycle |
 | GET | /api/v1/attendance | List attendance records |
 | POST | /api/v1/attendance/clock-in | Clock in |
 | POST | /api/v1/attendance/clock-out | Clock out |
 | POST | /api/v1/leave | Request leave |
 | POST | /api/v1/loans | Request loan |
-
-### Swagger Documentation
-When the backend is running, visit `http://localhost:3000/api` for interactive API documentation.
 
 ---
 
@@ -111,27 +101,20 @@ Row-level tenancy — every table has `tenantId`. Tenant isolation enforced via 
 ### RBAC (Role-Based Access Control)
 - **Roles:** Owner, HR Manager, Accountant, Manager, Employee
 - **Permissions:** Granular strings (e.g., `employee.create`, `payroll.finalize`)
-- Custom `@RequirePermission()` decorator on controllers
-- Guards check JWT → employee → roles → permissions
+- Global JWT guard with `@Public()` decorator for unprotected routes
+- Custom `@CurrentUser()` and `@CurrentTenant()` decorators
 
 ### Payroll Rule Engine
 - Salary components stored as structured JSON (operations tree)
 - **No `eval()`** — tree traversed node-by-node (FIXED, VARIABLE, ADD, SUBTRACT, MULTIPLY, DIVIDE)
 - All monetary calculations use `Decimal` (Prisma) — never floating-point
 - Payslips are immutable snapshots after payroll cycle finalization
-- Adjustment entries for post-finalization corrections (never modify frozen payslips)
 
 ### Approval Workflow Engine
 - Configurable per-tenant per-request-type (leave, loan, resignation)
 - State machine: PENDING → step1 → step2 → ... → APPROVED/REJECTED
 - EventEmitter drives step transitions
 - Frontend polls status endpoint (no WebSocket dependency)
-
-### Background Jobs (BullMQ)
-- Bulk payslip PDF generation
-- Email notifications (contract expiry, pending leave)
-- Meilisearch index rebuild after bulk data changes
-- Job status exposed via simple polling endpoint
 
 ---
 
@@ -181,32 +164,12 @@ qawam/
 # Backend unit tests
 cd apps/backend && npm test
 
-# Backend E2E tests (requires running database)
-cd apps/backend && npm run test:e2e
+# Backend type check
+cd apps/backend && npx tsc --noEmit
 
-# Frontend build check
-cd apps/frontend && npm run build
+# Frontend type check
+cd apps/frontend && npx tsc --noEmit
 ```
-
-**106 unit tests** covering:
-- Payroll Rule Engine (formula evaluation, edge cases)
-- Approval Workflow (state transitions, ordering)
-- Auth (JWT, refresh tokens, RBAC)
-- Attendance (clock in/out, overtime, late calculation)
-- Leave (day validation, approval effects)
-- Loans (installment generation, payment tracking)
-
----
-
-## API Documentation
-
-Swagger/OpenAPI documentation available at `http://localhost:3000/api` when the backend is running.
-
----
-
-## Architecture Decisions
-
-See `.agent/current-task/decisions.md` for detailed explanations of every architectural decision made in this project. This file is intended for interview preparation and technical discussions.
 
 ---
 

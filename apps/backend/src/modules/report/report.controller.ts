@@ -12,6 +12,7 @@ import {
   GenerateAttendanceReportDto,
   GeneratePayrollReportDto,
 } from './dto/report.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('reports')
 export class ReportController {
@@ -19,9 +20,12 @@ export class ReportController {
 
   @Post('attendance')
   @HttpCode(HttpStatus.CREATED)
-  async generateAttendanceReport(@Body() dto: GenerateAttendanceReportDto) {
+  async generateAttendanceReport(
+    @CurrentTenant() tenantId: string,
+    @Body() dto: GenerateAttendanceReportDto,
+  ) {
     return this.reportService.generateAttendanceReport(
-      'tenant-id-placeholder',
+      tenantId,
       dto.startDate,
       dto.endDate,
     );
@@ -29,22 +33,25 @@ export class ReportController {
 
   @Post('payroll')
   @HttpCode(HttpStatus.CREATED)
-  async generatePayrollReport(@Body() dto: GeneratePayrollReportDto) {
+  async generatePayrollReport(
+    @CurrentTenant() tenantId: string,
+    @Body() dto: GeneratePayrollReportDto,
+  ) {
     return this.reportService.generatePayrollReport(
-      'tenant-id-placeholder',
+      tenantId,
       dto.payrollCycleId,
     );
   }
 
   @Post('employee')
   @HttpCode(HttpStatus.CREATED)
-  async generateEmployeeReport() {
-    return this.reportService.generateEmployeeReport('tenant-id-placeholder');
+  async generateEmployeeReport(@CurrentTenant() tenantId: string) {
+    return this.reportService.generateEmployeeReport(tenantId);
   }
 
   @Get()
-  async getAllReports() {
-    return this.reportService.getAllReports('tenant-id-placeholder');
+  async getAllReports(@CurrentTenant() tenantId: string) {
+    return this.reportService.getAllReports(tenantId);
   }
 
   @Get(':reportId')

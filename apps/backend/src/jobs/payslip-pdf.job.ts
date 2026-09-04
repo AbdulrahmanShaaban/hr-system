@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../core/database/prisma.service';
 
 interface PayslipPdfJobData {
   payrollCycleId: string;

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApprovalService } from './approval.service';
 import { ApproveStepDto, RejectStepDto } from './dto/approval.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('approvals')
 export class ApprovalController {
@@ -31,17 +32,19 @@ export class ApprovalController {
   @HttpCode(HttpStatus.OK)
   async approveStep(
     @Param('id') id: string,
+    @CurrentUser('id') userId: string,
     @Body() dto: ApproveStepDto,
   ) {
-    return this.approvalService.approveStep(id, 'approver-id-placeholder', dto.comment);
+    return this.approvalService.approveStep(id, userId, dto.comment);
   }
 
   @Post(':id/reject')
   @HttpCode(HttpStatus.OK)
   async rejectStep(
     @Param('id') id: string,
+    @CurrentUser('id') userId: string,
     @Body() dto: RejectStepDto,
   ) {
-    return this.approvalService.rejectStep(id, 'approver-id-placeholder', dto.comment);
+    return this.approvalService.rejectStep(id, userId, dto.comment);
   }
 }

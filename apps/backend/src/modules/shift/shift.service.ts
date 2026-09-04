@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import { CreateShiftDto, UpdateShiftDto } from './dto/shift.dto';
 
 @Injectable()

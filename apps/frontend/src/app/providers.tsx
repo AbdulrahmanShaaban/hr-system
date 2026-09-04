@@ -2,7 +2,7 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
+import { ToastProvider } from "@/components/ui/toaster";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -32,8 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster />
+      <ToastProvider>{children}</ToastProvider>
     </QueryClientProvider>
   );
 }

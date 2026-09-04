@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PayrollService } from '../payroll.service';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../../../core/database/prisma.service';
 import { BadRequestException } from '@nestjs/common';
 import { Decimal } from '@prisma/client/runtime/library';
 

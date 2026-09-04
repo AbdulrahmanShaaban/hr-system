@@ -10,14 +10,15 @@ import {
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/notification.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('notifications')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Post()
-  async create(@Body() dto: CreateNotificationDto) {
-    return this.notificationService.create('tenant-id-placeholder', dto);
+  async create(@CurrentTenant() tenantId: string, @Body() dto: CreateNotificationDto) {
+    return this.notificationService.create(tenantId, dto);
   }
 
   @Get('employee/:employeeId')

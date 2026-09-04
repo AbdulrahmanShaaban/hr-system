@@ -15,6 +15,7 @@ import {
   IndexEmployeeDto,
   BulkIndexEmployeesDto,
 } from './dto/search.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('search')
 export class SearchController {
@@ -22,13 +23,10 @@ export class SearchController {
 
   @Get('employees')
   async searchEmployees(
+    @CurrentTenant() tenantId: string,
     @Query('q') query: string,
-    @Query('tenantId') tenantId: string,
   ) {
-    return this.searchService.searchEmployees(
-      tenantId ?? 'tenant-id-placeholder',
-      query,
-    );
+    return this.searchService.searchEmployees(tenantId, query);
   }
 
   @Post('employees')
@@ -62,7 +60,7 @@ export class SearchController {
 
   @Post('reindex')
   @HttpCode(HttpStatus.OK)
-  async reindexAll(@Query('tenantId') tenantId: string) {
-    return this.searchService.reindexAll(tenantId ?? 'tenant-id-placeholder');
+  async reindexAll(@CurrentTenant() tenantId: string) {
+    return this.searchService.reindexAll(tenantId);
   }
 }

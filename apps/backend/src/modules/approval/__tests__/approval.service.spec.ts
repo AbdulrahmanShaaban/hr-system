@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApprovalService } from '../approval.service';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../../../core/database/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { BadRequestException } from '@nestjs/common';
 

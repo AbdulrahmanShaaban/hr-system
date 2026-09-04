@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AttendanceService } from '../attendance.service';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../../../core/database/prisma.service';
 import { BadRequestException } from '@nestjs/common';
 
 const mockPrisma = {

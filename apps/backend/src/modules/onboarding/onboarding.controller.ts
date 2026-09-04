@@ -13,23 +13,24 @@ import {
   StartOnboardingDto,
   CompleteStepDto,
 } from './dto/onboarding.dto';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('onboarding')
 export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
   @Post('templates')
-  async createTemplate(@Body() dto: CreateOnboardingTemplateDto) {
+  async createTemplate(@CurrentTenant() tenantId: string, @Body() dto: CreateOnboardingTemplateDto) {
     return this.onboardingService.createTemplate(
-      'tenant-id-placeholder',
+      tenantId,
       dto.name,
       dto.steps,
     );
   }
 
   @Get('templates')
-  async getTemplates() {
-    return this.onboardingService.getTemplates('tenant-id-placeholder');
+  async getTemplates(@CurrentTenant() tenantId: string) {
+    return this.onboardingService.getTemplates(tenantId);
   }
 
   @Get('templates/:templateId')

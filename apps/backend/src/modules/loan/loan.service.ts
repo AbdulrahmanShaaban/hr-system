@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../../core/database/prisma.service';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()

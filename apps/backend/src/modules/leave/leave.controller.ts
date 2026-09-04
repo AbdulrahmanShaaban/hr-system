@@ -9,15 +9,17 @@ import {
 } from '@nestjs/common';
 import { LeaveService } from './leave.service';
 import { RequestLeaveDto } from './dto/leave.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('leaves')
 export class LeaveController {
   constructor(private readonly leaveService: LeaveService) {}
 
   @Post()
-  async requestLeave(@Body() dto: RequestLeaveDto) {
+  async requestLeave(@CurrentUser('employeeId') employeeId: string, @Body() dto: RequestLeaveDto) {
     return this.leaveService.requestLeave(
-      'employee-id-placeholder',
+      employeeId,
       dto.leaveTypeId,
       dto.startDate,
       dto.endDate,
@@ -26,8 +28,8 @@ export class LeaveController {
   }
 
   @Get()
-  async findAll() {
-    return this.leaveService.findAll('tenant-id-placeholder');
+  async findAll(@CurrentTenant() tenantId: string) {
+    return this.leaveService.findAll(tenantId);
   }
 
   @Get('employee/:employeeId')
@@ -36,19 +38,19 @@ export class LeaveController {
   }
 
   @Get('types')
-  async findAllTypes() {
-    return this.leaveService.findAllLeaveTypes('tenant-id-placeholder');
+  async findAllTypes(@CurrentTenant() tenantId: string) {
+    return this.leaveService.findAllLeaveTypes(tenantId);
   }
 
   @Post(':id/approve')
   @HttpCode(HttpStatus.OK)
-  async approveLeave(@Param('id') id: string) {
-    return this.leaveService.approveLeave(id, 'approver-id-placeholder');
+  async approveLeave(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.leaveService.approveLeave(id, userId);
   }
 
   @Post(':id/reject')
   @HttpCode(HttpStatus.OK)
-  async rejectLeave(@Param('id') id: string) {
-    return this.leaveService.rejectLeave(id, 'approver-id-placeholder');
+  async rejectLeave(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    return this.leaveService.rejectLeave(id, userId);
   }
 }

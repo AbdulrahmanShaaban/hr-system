@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,7 +19,8 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const { login, isLoginPending, loginError } = useAuth();
+  const router = useRouter();
+  const { login, isLoginPending, loginError, isAuthenticated } = useAuth();
 
   const {
     register,
@@ -26,7 +28,17 @@ export function LoginForm() {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "admin@acme.com",
+      password: "password123",
+    },
   });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   const onSubmit = (data: LoginFormValues) => {
     login(data);
@@ -56,7 +68,7 @@ export function LoginForm() {
             <Input
               label="Email"
               type="email"
-              placeholder="admin@qawam.com"
+              placeholder="admin@acme.com"
               error={errors.email?.message}
               {...register("email")}
             />

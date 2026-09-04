@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "../api/auth.api";
+import { setTokens, clearTokens } from "@/lib/api-client";
 import type { LoginPayload } from "../types/auth.types";
 
 export function useAuth() {
@@ -16,6 +17,7 @@ export function useAuth() {
   const loginMutation = useMutation({
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: (data) => {
+      setTokens(data.accessToken, data.refreshToken);
       queryClient.setQueryData(["auth", "me"], data.user);
     },
   });
@@ -23,6 +25,7 @@ export function useAuth() {
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
+      clearTokens();
       queryClient.setQueryData(["auth", "me"], null);
       queryClient.clear();
     },

@@ -9,28 +9,30 @@ import {
 } from '@nestjs/common';
 import { LoanService } from './loan.service';
 import { RequestLoanDto } from './dto/loan.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @Controller('loans')
 export class LoanController {
   constructor(private readonly loanService: LoanService) {}
 
   @Post()
-  async requestLoan(@Body() dto: RequestLoanDto) {
+  async requestLoan(@CurrentUser('employeeId') employeeId: string, @Body() dto: RequestLoanDto) {
     return this.loanService.requestLoan(
-      'employee-id-placeholder',
+      employeeId,
       dto.loanTypeId,
       dto.amount,
     );
   }
 
   @Get()
-  async findAll() {
-    return this.loanService.findAll('tenant-id-placeholder');
+  async findAll(@CurrentTenant() tenantId: string) {
+    return this.loanService.findAll(tenantId);
   }
 
   @Get('types')
-  async findAllTypes() {
-    return this.loanService.findAllLoanTypes('tenant-id-placeholder');
+  async findAllTypes(@CurrentTenant() tenantId: string) {
+    return this.loanService.findAllLoanTypes(tenantId);
   }
 
   @Get('employee/:employeeId')

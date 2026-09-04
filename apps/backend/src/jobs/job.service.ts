@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue, Worker } from 'bullmq';
-import { PrismaService } from '@core/database/prisma.service';
+import { PrismaService } from '../core/database/prisma.service';
 
 @Injectable()
 export class JobService {
