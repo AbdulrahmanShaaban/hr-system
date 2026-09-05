@@ -35,12 +35,14 @@ export function EmployeesPage() {
   };
 
   const filteredEmployees = search
-    ? employees.filter(
-        (e) =>
+    ? employees.filter((e) => {
+        const posName = typeof e.position === "string" ? e.position : e.position?.name ?? "";
+        return (
           `${e.firstName} ${e.lastName}`.includes(search) ||
           e.email.toLowerCase().includes(search.toLowerCase()) ||
-          e.position.includes(search)
-      )
+          posName.includes(search)
+        );
+      })
     : employees;
 
   return (
