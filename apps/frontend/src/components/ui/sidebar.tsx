@@ -42,6 +42,7 @@ import { useAuth } from "@/features/auth/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
+import { SiteHeader } from "@/components/layout/site-header";
 
 interface NavItem {
   name: string;
@@ -74,6 +75,7 @@ const navigation: NavGroup[] = [
     label: "الطلبات والاعتمادات",
     items: [
       { name: "الطلبات المعلقة", href: "/approvals", icon: FileCheck },
+      { name: "التمهيد", href: "/onboarding", icon: ClipboardList },
     ],
   },
   {
@@ -100,6 +102,7 @@ const HEADER_MENU_LINKS = [
   { title: "الإجازات", href: "/leave", icon: CalendarDays },
   { title: "الرواتب", href: "/payroll", icon: Calculator },
   { title: "الإعدادات", href: "/settings", icon: Settings },
+  { title: "التمهيد", href: "/onboarding", icon: ClipboardList },
 ] as const;
 
 function arabicInitials(name: string | null | undefined): string {
@@ -363,7 +366,10 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
           </DropdownMenu>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 lg:p-8">
+          <SiteHeader />
+          {children}
+        </main>
       </div>
     </div>
   );
@@ -377,7 +383,11 @@ function NotificationBell() {
     queryKey: ["notifications", "unread", user?.id],
     queryFn: () => api.get(`/notifications/employee/${user?.id}/unread`),
     enabled: !!user?.id,
-    refetchInterval: 30000,
+    refetchInterval: (query) => {
+      return query.state.dataUpdateCount < 1 ? 30000 : (typeof document !== "undefined" && document.hidden ? false : 30000);
+    },
+    staleTime: 25000,
+    refetchOnWindowFocus: true,
   });
 
   const unreadCount = Array.isArray(data) ? data.length : 0;

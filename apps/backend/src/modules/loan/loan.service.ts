@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { InstallmentStatus } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -65,7 +66,7 @@ export class LoanService {
           create: installments.map((inst) => ({
             amount: inst.amount,
             dueDate: inst.dueDate,
-            status: inst.status as any,
+            status: inst.status as InstallmentStatus,
           })),
         },
       },

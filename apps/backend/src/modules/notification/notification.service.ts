@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { NotificationType } from '@prisma/client';
 import { CreateNotificationDto } from './dto/notification.dto';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class NotificationService {
         employeeId: dto.employeeId,
         title: dto.title,
         message: dto.message,
-        type: (dto.type as any) ?? 'INFO',
+        type: (dto.type as NotificationType) ?? 'INFO',
       },
     });
   }

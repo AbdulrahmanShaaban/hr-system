@@ -90,25 +90,33 @@ export class LeaveService {
 
     const start = new Date(request.startDate);
     const end = new Date(request.endDate);
+    const dates: Date[] = [];
     const current = new Date(start);
 
     while (current <= end) {
       const day = new Date(current);
       day.setHours(0, 0, 0, 0);
-
-      await this.prisma.attendance.upsert({
-        where: { employeeId_date: { employeeId: request.employeeId, date: day } },
-        update: { status: 'ON_LEAVE' },
-        create: {
-          tenantId: request.tenantId,
-          employeeId: request.employeeId,
-          date: day,
-          status: 'ON_LEAVE',
-        },
-      });
-
+      dates.push(day);
       current.setDate(current.getDate() + 1);
     }
+
+    const createData = dates.map((date) => ({
+      tenantId: request.tenantId,
+      employeeId: request.employeeId,
+      date,
+      status: 'ON_LEAVE' as const,
+    }));
+
+    await this.prisma.$transaction([
+      this.prisma.attendance.createMany({ data: createData, skipDuplicates: true }),
+      this.prisma.attendance.updateMany({
+        where: {
+          employeeId: request.employeeId,
+          date: { gte: start, lte: end },
+        },
+        data: { status: 'ON_LEAVE' },
+      }),
+    ]);
 
     this.eventEmitter.emit('leave.approved', {
       employeeId: request.employeeId,

@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import type { StringValue } from 'ms';
 import { PrismaService } from '../../core/database/prisma.service';
 import { RedisService } from '../../core/redis/redis.service';
 import * as bcrypt from 'bcrypt';
@@ -52,11 +53,11 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('jwt.secret')!,
-        expiresIn: this.configService.get<string>('jwt.expiresIn', '15m'),
+        expiresIn: this.configService.get('jwt.expiresIn', '15m') as StringValue,
       }),
       this.jwtService.signAsync(payload, {
         secret: this.configService.get<string>('jwtRefresh.secret')!,
-        expiresIn: this.configService.get<string>('jwtRefresh.expiresIn', '7d'),
+        expiresIn: this.configService.get('jwtRefresh.expiresIn', '7d') as StringValue,
       }),
     ]);
 
@@ -125,11 +126,11 @@ export class AuthService {
       const [newAccessToken, newRefreshToken] = await Promise.all([
         this.jwtService.signAsync(newPayload, {
           secret: this.configService.get<string>('jwt.secret')!,
-          expiresIn: this.configService.get<string>('jwt.expiresIn', '15m'),
+          expiresIn: this.configService.get('jwt.expiresIn', '15m') as StringValue,
         }),
         this.jwtService.signAsync(newPayload, {
           secret: this.configService.get<string>('jwtRefresh.secret')!,
-          expiresIn: this.configService.get<string>('jwtRefresh.expiresIn', '7d'),
+          expiresIn: this.configService.get('jwtRefresh.expiresIn', '7d') as StringValue,
         }),
       ]);
 

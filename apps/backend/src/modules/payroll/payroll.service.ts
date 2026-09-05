@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { ComponentType } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
 interface FormulaNode {
@@ -67,16 +68,17 @@ export class PayrollService {
   }
 
   async calculatePayslip(employeeId: string, payrollCycleId: string) {
-    const [employee, cycle, components] = await Promise.all([
-      this.prisma.employee.findUniqueOrThrow({
-        where: { id: employeeId },
-        include: { shift: true },
-      }),
+    const employee = await this.prisma.employee.findUniqueOrThrow({
+      where: { id: employeeId },
+      include: { shift: true },
+    });
+
+    const [cycle, components] = await Promise.all([
       this.prisma.payrollCycle.findUniqueOrThrow({
         where: { id: payrollCycleId },
       }),
       this.prisma.salaryComponent.findMany({
-        where: { tenantId: (await this.prisma.employee.findUniqueOrThrow({ where: { id: employeeId } })).tenantId },
+        where: { tenantId: employee.tenantId },
       }),
     ]);
 
@@ -205,7 +207,7 @@ export class PayrollService {
             create: payslipComponents.map((pc) => ({
               salaryComponentId: pc.salaryComponentId,
               name: pc.name,
-              type: pc.type as any,
+              type: pc.type as ComponentType,
               amount: pc.amount,
             })),
           },
@@ -231,7 +233,7 @@ export class PayrollService {
           create: payslipComponents.map((pc) => ({
             salaryComponentId: pc.salaryComponentId,
             name: pc.name,
-            type: pc.type as any,
+            type: pc.type as ComponentType,
             amount: pc.amount,
           })),
         },

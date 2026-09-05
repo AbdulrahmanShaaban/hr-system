@@ -12,6 +12,18 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/toaster";
 import { Shield, Plus, Trash2, Key } from "lucide-react";
 import {
@@ -43,7 +55,7 @@ export function RolesPage() {
   const createMutation = useCreateRole();
   const deleteMutation = useDeleteRole();
 
-  const roles = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? (data as any[]) : [];
+  const roles: Role[] = Array.isArray(data?.data) ? data.data as Role[] : Array.isArray(data) ? data as Role[] : [];
   const filtered = roles.filter((r: Role) => r.name.includes(search));
 
   const togglePerm = (code: string) => {
@@ -185,18 +197,20 @@ export function RolesPage() {
                     <p className="text-xs font-semibold text-muted-foreground mb-1.5">{group.group}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {group.items.map((code) => (
-                        <button
+                        <label
                           key={code}
-                          type="button"
-                          onClick={() => togglePerm(code)}
-                          className={`rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+                          className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
                             selectedPerms.includes(code)
                               ? "border-primary bg-primary/10 text-primary"
                               : "border-border text-muted-foreground hover:bg-muted"
                           }`}
                         >
+                          <Checkbox
+                            checked={selectedPerms.includes(code)}
+                            onCheckedChange={() => togglePerm(code)}
+                          />
                           {code}
-                        </button>
+                        </label>
                       ))}
                     </div>
                   </div>
@@ -215,24 +229,22 @@ export function RolesPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>حذف الدور</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            هل أنت متأكد من حذف دور <strong>{deleteConfirm?.name}</strong>؟
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              إلغاء
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف الدور</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف دور <strong>{deleteConfirm?.name}</strong>؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? "جاري الحذف..." : "حذف"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

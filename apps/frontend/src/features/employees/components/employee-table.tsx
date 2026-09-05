@@ -14,12 +14,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/toaster";
 import { useDeleteEmployee } from "../hooks/use-employees";
 import type { Employee } from "../types/employee.types";
@@ -185,28 +189,26 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
         )}
       </div>
 
-      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>حذف الموظف</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            هل أنت متأكد من حذف الموظف{" "}
-            <strong>
-              {deleteTarget?.firstName} {deleteTarget?.lastName}
-            </strong>
-            ؟ لا يمكن التراجع عن هذا الإجراء.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              إلغاء
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+      <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف الموظف</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف الموظف{" "}
+              <strong>
+                {deleteTarget?.firstName} {deleteTarget?.lastName}
+              </strong>
+              ؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? "جاري الحذف..." : "حذف"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

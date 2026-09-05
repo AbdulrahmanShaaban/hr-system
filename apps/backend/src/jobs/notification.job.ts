@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
 import { PrismaService } from '../core/database/prisma.service';
+import { NotificationType } from '@prisma/client';
 
 interface NotificationJobData {
   employeeId: string;
@@ -36,7 +37,7 @@ export function createNotificationWorker(prisma: PrismaService): Worker {
           employeeId,
           title,
           message,
-          type: (type as any) ?? 'INFO',
+          type: (type as NotificationType) ?? 'INFO',
         },
       });
 

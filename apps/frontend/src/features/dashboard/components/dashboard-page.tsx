@@ -3,6 +3,7 @@
 import React from "react";
 import { Users, UserCheck, CalendarOff, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { KpiCard } from "./kpi-card";
 import { AttendanceChart, LeavePieChart, PayrollChart } from "./charts";
 import { QuickActions } from "./quick-actions";
@@ -25,6 +26,33 @@ const placeholderActivity = [
 
 export function DashboardPage() {
   const { user } = useAuth();
+  const [isLoading] = React.useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-64" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 rounded-xl" />
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <Skeleton className="h-64 rounded-xl" />
+              <Skeleton className="h-64 rounded-xl" />
+            </div>
+            <Skeleton className="h-80 rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-48 rounded-xl" />
+            <Skeleton className="h-64 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

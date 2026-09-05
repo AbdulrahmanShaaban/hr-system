@@ -12,6 +12,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/toaster";
 import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
 import {
@@ -35,7 +46,7 @@ export function DepartmentsPage() {
   const updateMutation = useUpdateDepartment();
   const deleteMutation = useDeleteDepartment();
 
-  const departments = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? (data as any[]) : [];
+  const departments: Department[] = Array.isArray(data?.data) ? data.data as Department[] : Array.isArray(data) ? data as Department[] : [];
 
   const filtered = departments.filter((d: Department) =>
     d.name.includes(search)
@@ -214,24 +225,22 @@ export function DepartmentsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>حذف القسم</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            هل أنت متأكد من حذف قسم <strong>{deleteConfirm?.name}</strong>؟ لا يمكن التراجع عن هذا الإجراء.
-          </p>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              إلغاء
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف القسم</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف قسم <strong>{deleteConfirm?.name}</strong>؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? "جاري الحذف..." : "حذف"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

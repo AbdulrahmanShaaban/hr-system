@@ -53,7 +53,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 ? "border-success/20 bg-success/10 text-success"
                 : toast.variant === "warning"
                 ? "border-warning/20 bg-warning/10 text-warning"
-                : "border-border bg-white dark:bg-muted"
+                : "border-border bg-card text-card-foreground"
             }`}
           >
             {toast.title && (
