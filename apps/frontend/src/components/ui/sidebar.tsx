@@ -220,6 +220,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
 function NotificationBell() {
   const [open, setOpen] = React.useState(false);
   const { user } = useAuth();
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const { data } = useQuery({
     queryKey: ["notifications", "unread", user?.id],
@@ -233,6 +234,7 @@ function NotificationBell() {
   return (
     <div className="relative">
       <Button
+        ref={buttonRef}
         variant="ghost"
         size="sm"
         className="relative"
@@ -248,7 +250,7 @@ function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute start-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-white shadow-lg dark:bg-muted">
+          <div className="absolute end-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-white shadow-lg dark:bg-muted">
             <div className="flex items-center justify-between border-b border-border p-3">
               <h3 className="text-sm font-semibold text-foreground">الإشعارات</h3>
               {unreadCount > 0 && (

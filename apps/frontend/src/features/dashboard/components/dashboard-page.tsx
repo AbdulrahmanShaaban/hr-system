@@ -4,6 +4,7 @@ import React from "react";
 import { Users, UserCheck, CalendarOff, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "./kpi-card";
+import { AttendanceChart, LeavePieChart, PayrollChart } from "./charts";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 
 const placeholderKpis = [
@@ -24,7 +25,7 @@ export function DashboardPage() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           مرحباً بعودتك{user?.employee ? `، ${user.employee.firstName}` : ""}
@@ -34,11 +35,18 @@ export function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {placeholderKpis.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
       </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <AttendanceChart />
+        <LeavePieChart />
+      </div>
+
+      <PayrollChart />
 
       <Card>
         <CardHeader>
