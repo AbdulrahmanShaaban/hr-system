@@ -4,8 +4,8 @@ export interface Employee {
   lastName: string;
   email: string;
   phone?: string;
-  position: string;
-  department: string;
+  position: string | { id: string; name: string; [key: string]: unknown };
+  department: string | { id: string; name: string; [key: string]: unknown };
   status: "active" | "inactive" | "on-leave";
   joinDate: string;
   avatar?: string;

@@ -24,6 +24,15 @@ const statusLabelMap: Record<Employee["status"], string> = {
   inactive: "غير نشط",
 };
 
+function resolveName(value: unknown): string {
+  if (!value) return "-";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && value !== null && "name" in value) {
+    return String((value as { name: unknown }).name);
+  }
+  return String(value);
+}
+
 interface EmployeeTableProps {
   data: Employee[];
 }
@@ -52,8 +61,8 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
                   <p className="text-xs text-muted-foreground">{employee.email}</p>
                 </div>
               </TableCell>
-              <TableCell>{employee.position}</TableCell>
-              <TableCell>{employee.department}</TableCell>
+              <TableCell>{resolveName(employee.position)}</TableCell>
+              <TableCell>{resolveName(employee.department)}</TableCell>
               <TableCell>
                 <Badge variant={statusVariantMap[employee.status]}>
                   {statusLabelMap[employee.status]}

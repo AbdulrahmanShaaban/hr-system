@@ -16,9 +16,11 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 
 const navigation = [
   { name: "لوحة التحكم", href: "/", icon: LayoutDashboard },
@@ -37,6 +39,16 @@ interface SidebarProps {
 
 function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout, user } = useAuth();
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        router.push("/login");
+      },
+    });
+  };
 
   return (
     <>
@@ -107,13 +119,13 @@ function Sidebar({ open, onClose }: SidebarProps) {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                مدير النظام
+                {user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : "مدير النظام"}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                admin@qawam.com
+                {user?.email || "admin@qawam.com"}
               </p>
             </div>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
