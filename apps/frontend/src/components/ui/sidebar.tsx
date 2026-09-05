@@ -26,6 +26,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/features/auth/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api-client";
 
 interface NavItem {
   name: string;
@@ -52,7 +54,7 @@ const navigation: NavGroup[] = [
   {
     label: "الطلبات والاعتمادات",
     items: [
-      { name: " الطلبات المعلقة", href: "/approvals", icon: FileCheck },
+      { name: "الطلبات المعلقة", href: "/approvals", icon: FileCheck },
     ],
   },
   {
@@ -124,10 +126,10 @@ function Sidebar({ open, onClose }: SidebarProps) {
           </Button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
           {navigation.map((group) => (
             <div key={group.label}>
-              <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-muted-foreground">
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -163,7 +165,9 @@ function Sidebar({ open, onClose }: SidebarProps) {
         <div className="border-t border-border p-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
-              <AvatarFallback>م</AvatarFallback>
+              <AvatarFallback>
+                {user?.employee?.firstName?.[0] || "م"}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
@@ -173,7 +177,7 @@ function Sidebar({ open, onClose }: SidebarProps) {
                 {user?.email || "admin@qawam.com"}
               </p>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="تسجيل الخروج">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -189,10 +193,11 @@ interface SidebarLayoutProps {
 
 function SidebarLayout({ children }: SidebarLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const handleClose = React.useCallback(() => setSidebarOpen(false), []);
 
   return (
     <div className="flex min-h-dvh bg-background">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={handleClose} />
 
       <div className="flex flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-white/80 backdrop-blur-sm px-4 dark:bg-muted/80 lg:px-8">
@@ -201,6 +206,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
             size="sm"
             className="lg:hidden"
             onClick={() => setSidebarOpen(true)}
+            aria-label="فتح القائمة"
           >
             <Menu className="h-5 w-5" />
           </Button>
@@ -220,7 +226,6 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
 function NotificationBell() {
   const [open, setOpen] = React.useState(false);
   const { user } = useAuth();
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const { data } = useQuery({
     queryKey: ["notifications", "unread", user?.id],
@@ -234,11 +239,11 @@ function NotificationBell() {
   return (
     <div className="relative">
       <Button
-        ref={buttonRef}
         variant="ghost"
         size="sm"
         className="relative"
         onClick={() => setOpen(!open)}
+        aria-label={`إشعارات${unreadCount > 0 ? ` (${unreadCount} جديدة)` : ""}`}
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
@@ -259,7 +264,7 @@ function NotificationBell() {
             </div>
             <div className="max-h-80 overflow-y-auto">
               {Array.isArray(data) && data.length > 0 ? (
-                data.map((n: any) => (
+                data.map((n: { id: string; title: string; message: string }) => (
                   <div key={n.id} className="border-b border-border p-3 last:border-0">
                     <p className="text-sm font-medium text-foreground">{n.title}</p>
                     <p className="text-xs text-muted-foreground mt-1">{n.message}</p>
@@ -275,8 +280,5 @@ function NotificationBell() {
     </div>
   );
 }
-
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api-client";
 
 export { SidebarLayout, Sidebar };

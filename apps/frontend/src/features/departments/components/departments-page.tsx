@@ -152,10 +152,10 @@ export function DepartmentsPage() {
                       </td>
                       <td className="py-3">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => openEdit(dept)}>
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(dept)} aria-label="تعديل القسم">
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(dept)}>
+                          <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(dept)} aria-label="حذف القسم">
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>

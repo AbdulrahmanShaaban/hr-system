@@ -25,7 +25,7 @@ import type { ApprovalStep } from "../types/approval.types";
 const ENTITY_LABELS: Record<string, string> = {
   leave: "طلب إجازة",
   loan: "طلب سلفة",
-  onboarding: "onation تمهيد",
+  onboarding: "تمهيد",
   payroll: "دورة رواتب",
 };
 
@@ -123,6 +123,7 @@ export function ApprovalsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setActionTarget({ step, action: "approve" })}
+                      aria-label="اعتماد الطلب"
                     >
                       <CheckCircle2 className="h-4 w-4 text-success" />
                     </Button>
@@ -130,6 +131,7 @@ export function ApprovalsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setActionTarget({ step, action: "reject" })}
+                      aria-label="رفض الطلب"
                     >
                       <XCircle className="h-4 w-4 text-danger" />
                     </Button>

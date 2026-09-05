@@ -138,7 +138,7 @@ export function RolesPage() {
                           نظامي
                         </Badge>
                       ) : (
-                        <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(role)}>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(role)} aria-label="حذف الدور">
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       )}

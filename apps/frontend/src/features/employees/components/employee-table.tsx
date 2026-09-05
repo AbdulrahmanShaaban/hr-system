@@ -103,16 +103,16 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <Link href={`/employees/${employee.id}`}>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" aria-label="عرض الموظف">
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
                     <Link href={`/employees/${employee.id}/edit`}>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" aria-label="تعديل الموظف">
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(employee)}>
+                    <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(employee)} aria-label="حذف الموظف">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

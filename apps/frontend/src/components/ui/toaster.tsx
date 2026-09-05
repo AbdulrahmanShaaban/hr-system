@@ -27,11 +27,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([]);
 
   const addToast = React.useCallback((toast: Omit<Toast, "id">) => {
-    const id = Math.random().toString(36).slice(2);
+    const id = crypto.randomUUID?.() || Math.random().toString(36).slice(2);
     setToasts((prev) => [...prev, { ...toast, id }]);
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 5000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const removeToast = React.useCallback((id: string) => {
@@ -41,7 +42,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
       {children}
-      <div className="fixed bottom-0 right-0 z-[100] flex flex-col-reverse gap-2 p-4 sm:bottom-4 sm:right-4 sm:flex-col md:max-w-[420px]">
+      <div className="fixed bottom-0 start-0 z-[100] flex flex-col-reverse gap-2 p-4 sm:bottom-4 sm:start-4 sm:flex-col md:max-w-[420px]" role="status" aria-live="polite">
         {toasts.map((toast) => (
           <div
             key={toast.id}

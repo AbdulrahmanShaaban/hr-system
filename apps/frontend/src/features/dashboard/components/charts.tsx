@@ -26,10 +26,10 @@ const attendanceData = [
 ];
 
 const leaveData = [
-  { name: "إجازة مرضية", value: 8, color: "#ef4444" },
-  { name: "إجازة سنوية", value: 15, color: "#3b82f6" },
-  { name: "إجازة عارضة", value: 5, color: "#f59e0b" },
-  { name: "إجازة بدون راتب", value: 3, color: "#8b5cf6" },
+  { name: "إجازة مرضية", value: 8, color: "#9b59b6" },
+  { name: "إجازة سنوية", value: 15, color: "#3498db" },
+  { name: "إجازة عارضة", value: 5, color: "#f39c12" },
+  { name: "إجازة بدون راتب", value: 3, color: "#95a5a6" },
 ];
 
 const payrollData = [
@@ -63,8 +63,8 @@ export function AttendanceChart() {
                 }}
               />
               <Legend />
-              <Bar dataKey="حاضرون" fill="var(--color-primary-start)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="غياب" fill="#ef4444" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="حاضرون" fill="#27ae60" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="غياب" fill="#e74c3c" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -142,8 +142,8 @@ export function PayrollChart() {
                 ]}
               />
               <Legend />
-              <Bar dataKey="الصافي" fill="#22c55e" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="الخصومات" fill="#ef4444" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="الصافي" fill="#2c3e50" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="الخصومات" fill="#e67e22" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
