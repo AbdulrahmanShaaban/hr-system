@@ -31,16 +31,20 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 
   const token = getAccessToken();
+  const method = fetchOptions.method || "GET";
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
     ...(fetchOptions.headers as Record<string, string>),
   };
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
+  if (method !== "GET") {
+    headers["Content-Type"] = "application/json";
+  }
 
   const response = await fetch(url, {
     ...fetchOptions,
+    method,
     headers,
   });
 

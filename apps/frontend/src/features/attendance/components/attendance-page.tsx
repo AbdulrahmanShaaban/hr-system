@@ -67,7 +67,7 @@ export function AttendancePage() {
         <ClockInOut />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الحاضرين</CardTitle>
@@ -136,49 +136,88 @@ export function AttendancePage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>الموظف</TableHead>
-                <TableHead>التاريخ</TableHead>
-                <TableHead>وقت الحضور</TableHead>
-                <TableHead>وقت الانصراف</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead className="text-end">التأخير</TableHead>
-                <TableHead className="text-end">العمل الإضافي</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {records.map((record) => {
-                const config = statusConfig[record.status];
-                return (
-                  <TableRow key={record.id}>
-                    <TableCell className="font-medium">{record.employeeName}</TableCell>
-                    <TableCell>{record.date}</TableCell>
-                    <TableCell>{record.clockIn || "-"}</TableCell>
-                    <TableCell>{record.clockOut || "-"}</TableCell>
-                    <TableCell>
-                      <Badge variant={config.variant}>{config.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-end">
-                      {record.minutesLate > 0 ? (
-                        <span className="text-danger font-medium">{record.minutesLate} د</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-end">
-                      {record.overtimeMinutes > 0 ? (
-                        <span className="text-success font-medium">{record.overtimeMinutes} د</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          {/* Desktop Table */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>الموظف</TableHead>
+                  <TableHead>التاريخ</TableHead>
+                  <TableHead>وقت الحضور</TableHead>
+                  <TableHead>وقت الانصراف</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead className="text-end">التأخير</TableHead>
+                  <TableHead className="text-end">العمل الإضافي</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {records.map((record) => {
+                  const config = statusConfig[record.status];
+                  return (
+                    <TableRow key={record.id}>
+                      <TableCell className="font-medium">{record.employeeName}</TableCell>
+                      <TableCell>{record.date}</TableCell>
+                      <TableCell>{record.clockIn || "-"}</TableCell>
+                      <TableCell>{record.clockOut || "-"}</TableCell>
+                      <TableCell>
+                        <Badge variant={config.variant}>{config.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {record.minutesLate > 0 ? (
+                          <span className="text-danger font-medium">{record.minutesLate} د</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {record.overtimeMinutes > 0 ? (
+                          <span className="text-success font-medium">{record.overtimeMinutes} د</span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {records.map((record) => {
+              const config = statusConfig[record.status];
+              return (
+                <Card key={record.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{record.employeeName}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{record.date}</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                          <span className="text-muted-foreground">
+                            حضور: <span className="text-foreground font-medium">{record.clockIn || "-"}</span>
+                          </span>
+                          <span className="text-muted-foreground">
+                            انصراف: <span className="text-foreground font-medium">{record.clockOut || "-"}</span>
+                          </span>
+                        </div>
+                        <div className="mt-2 flex items-center gap-3">
+                          <Badge variant={config.variant} className="text-[10px]">{config.label}</Badge>
+                          {record.minutesLate > 0 && (
+                            <span className="text-xs text-danger font-medium">تأخير {record.minutesLate} د</span>
+                          )}
+                          {record.overtimeMinutes > 0 && (
+                            <span className="text-xs text-success font-medium">إضافي {record.overtimeMinutes} د</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
     </div>

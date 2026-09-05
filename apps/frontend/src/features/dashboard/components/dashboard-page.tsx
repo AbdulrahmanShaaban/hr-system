@@ -5,6 +5,8 @@ import { Users, UserCheck, CalendarOff, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "./kpi-card";
 import { AttendanceChart, LeavePieChart, PayrollChart } from "./charts";
+import { QuickActions } from "./quick-actions";
+import { LeaveList } from "./leave-list";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 
 const placeholderKpis = [
@@ -41,12 +43,19 @@ export function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <AttendanceChart />
-        <LeavePieChart />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <AttendanceChart />
+            <LeavePieChart />
+          </div>
+          <PayrollChart />
+        </div>
+        <div className="space-y-6">
+          <QuickActions />
+          <LeaveList />
+        </div>
       </div>
-
-      <PayrollChart />
 
       <Card>
         <CardHeader>

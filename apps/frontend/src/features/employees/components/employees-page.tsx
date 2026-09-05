@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Plus, Search, Download, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { EmployeeTable } from "./employee-table";
 import { EmployeeForm } from "./employee-form";
 import { useEmployees, useCreateEmployee } from "../hooks/use-employees";
@@ -18,8 +25,46 @@ const placeholderEmployees = [
   { id: "5", firstName: "يوسف", lastName: "إبراهيم", email: "youssef@qawam.com", position: "مسيّر بنية تحتية", department: "الهندسة", status: "inactive" as const, joinDate: "2021-11-05" },
 ];
 
+const statusOptions = [
+  { value: "all", label: "جميع الحالات" },
+  { value: "active", label: "نشط" },
+  { value: "on-leave", label: "في إجازة" },
+  { value: "inactive", label: "غير نشط" },
+];
+
+const departmentOptions = [
+  { value: "all", label: "جميع الأقسام" },
+  { value: "الهندسة", label: "الهندسة" },
+  { value: "الموارد البشرية", label: "الموارد البشرية" },
+  { value: "المالية", label: "المالية" },
+  { value: "التصميم", label: "التصميم" },
+];
+
+function exportToCSV(data: Record<string, unknown>[], filename: string) {
+  if (data.length === 0) return;
+  const headers = Object.keys(data[0]!);
+  const csvContent = [
+    headers.join(","),
+    ...data.map((row) =>
+      headers.map((h) => {
+        const val = String(row[h] ?? "");
+        return val.includes(",") ? `"${val}"` : val;
+      }).join(",")
+    ),
+  ].join("\n");
+
+  const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${filename}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
 export function EmployeesPage() {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [formOpen, setFormOpen] = useState(false);
 
   const { data } = useEmployees({ search });
@@ -34,16 +79,31 @@ export function EmployeesPage() {
     } as CreateEmployeePayload);
   };
 
-  const filteredEmployees = search
-    ? employees.filter((e) => {
-        const posName = typeof e.position === "string" ? e.position : e.position?.name ?? "";
-        return (
-          `${e.firstName} ${e.lastName}`.includes(search) ||
-          e.email.toLowerCase().includes(search.toLowerCase()) ||
-          posName.includes(search)
-        );
-      })
-    : employees;
+  const filteredEmployees = useMemo(() => {
+    return employees.filter((e) => {
+      const posName = typeof e.position === "string" ? e.position : e.position?.name ?? "";
+      const matchesSearch = !search ||
+        `${e.firstName} ${e.lastName}`.includes(search) ||
+        e.email.toLowerCase().includes(search.toLowerCase()) ||
+        posName.includes(search);
+      const matchesStatus = statusFilter === "all" || e.status === statusFilter;
+      const matchesDept = departmentFilter === "all" ||
+        (typeof e.department === "string" ? e.department : e.department?.name ?? "") === departmentFilter;
+      return matchesSearch && matchesStatus && matchesDept;
+    });
+  }, [employees, search, statusFilter, departmentFilter]);
+
+  const handleExport = () => {
+    const exportData = filteredEmployees.map((e) => ({
+      "الاسم": `${e.firstName} ${e.lastName}`,
+      "البريد الإلكتروني": e.email,
+      "المسمى الوظيفي": typeof e.position === "string" ? e.position : e.position?.name ?? "",
+      "القسم": typeof e.department === "string" ? e.department : e.department?.name ?? "",
+      "الحالة": e.status === "active" ? "نشط" : e.status === "on-leave" ? "في إجازة" : "غير نشط",
+      "تاريخ الالتحاق": e.joinDate,
+    }));
+    exportToCSV(exportData, "employees");
+  };
 
   return (
     <div className="space-y-6">
@@ -54,17 +114,23 @@ export function EmployeesPage() {
             إدارة أعضاء فريق العمل في مؤسستك.
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
-          <Plus className="h-4 w-4" />
-          إضافة موظف
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4" />
+            تصدير CSV
+          </Button>
+          <Button onClick={() => setFormOpen(true)}>
+            <Plus className="h-4 w-4" />
+            إضافة موظف
+          </Button>
+        </div>
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>جميع الموظفين</CardTitle>
-          <div className="w-72">
-            <div className="relative">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>جميع الموظفين ({filteredEmployees.length})</CardTitle>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative w-full sm:w-72">
               <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="بحث عن موظف..."
@@ -73,6 +139,30 @@ export function EmployeesPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {departmentOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>

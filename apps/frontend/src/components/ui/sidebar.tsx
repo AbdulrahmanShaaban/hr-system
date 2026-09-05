@@ -20,12 +20,26 @@ import {
   Menu,
   X,
   Bell,
+  Calculator,
+  CalendarCheck,
+  CalendarDays,
+  BarChart3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/hooks/use-auth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 
@@ -42,9 +56,14 @@ interface NavGroup {
 
 const navigation: NavGroup[] = [
   {
-    label: "إدارة الموارد البشرية",
+    label: "نظرة عامة",
     items: [
       { name: "لوحة التحكم", href: "/", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "إدارة الموارد البشرية",
+    items: [
       { name: "الموظفين", href: "/employees", icon: Users },
       { name: "الأقسام", href: "/departments", icon: Building2 },
       { name: "الحضور والانصراف", href: "/attendance", icon: Clock },
@@ -68,10 +87,29 @@ const navigation: NavGroup[] = [
     label: "إدارة النظام",
     items: [
       { name: "الأدوار والصلاحيات", href: "/roles", icon: Shield },
+      { name: "التقارير", href: "/reports", icon: BarChart3 },
       { name: "الإعدادات", href: "/settings", icon: Settings },
     ],
   },
 ];
+
+const HEADER_MENU_LINKS = [
+  { title: "لوحة التحكم", href: "/", icon: LayoutDashboard },
+  { title: "الموظفون", href: "/employees", icon: Users },
+  { title: "الحضور", href: "/attendance", icon: CalendarCheck },
+  { title: "الإجازات", href: "/leave", icon: CalendarDays },
+  { title: "الرواتب", href: "/payroll", icon: Calculator },
+  { title: "الإعدادات", href: "/settings", icon: Settings },
+] as const;
+
+function arabicInitials(name: string | null | undefined): string {
+  if (!name?.trim()) return "؟";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`;
+  }
+  return name.slice(0, 2);
+}
 
 interface SidebarProps {
   open: boolean;
@@ -82,6 +120,7 @@ function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     logout(undefined, {
@@ -90,6 +129,10 @@ function Sidebar({ open, onClose }: SidebarProps) {
       },
     });
   };
+
+  const initials = arabicInitials(
+    user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : user?.email
+  );
 
   return (
     <>
@@ -102,13 +145,14 @@ function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-50 flex w-72 flex-col border-s border-border bg-white transition-transform duration-200 dark:bg-muted lg:static lg:translate-x-0",
-          open ? "translate-x-0" : "translate-x-full"
+          "fixed inset-y-0 start-0 z-50 flex w-72 flex-col border-s border-border bg-card transition-transform duration-200 dark:bg-card",
+          "lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0",
+          open ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
         <div className="flex h-16 items-center justify-between border-b border-border ps-6 pe-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-primary-start)] to-[var(--color-primary-end)]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary">
               <span className="text-lg font-bold text-white">ق</span>
             </div>
             <div className="flex flex-col leading-none">
@@ -140,6 +184,7 @@ function Sidebar({ open, onClose }: SidebarProps) {
                     <Link
                       key={item.name}
                       href={item.href}
+                      onClick={isMobile ? onClose : undefined}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
@@ -163,24 +208,52 @@ function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         <div className="border-t border-border p-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
-              <AvatarFallback>
-                {user?.employee?.firstName?.[0] || "م"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : "مدير النظام"}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {user?.email || "admin@qawam.com"}
-              </p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout} aria-label="تسجيل الخروج">
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex w-full items-center gap-3 rounded-lg p-2 text-start transition-colors hover:bg-muted">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-primary/15 text-xs font-semibold text-primary">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : "مدير النظام"}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {user?.email || "admin@qawam.com"}
+                  </p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-52" side="top" sideOffset={8}>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col gap-0.5 text-start">
+                  <span className="text-sm font-medium">
+                    {user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : "مدير النظام"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {user?.email}
+                  </span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem onClick={() => router.push("/settings")}>
+                  <Settings className="size-4" />
+                  الإعدادات
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={handleLogout}
+              >
+                <LogOut className="size-4" />
+                تسجيل الخروج
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </aside>
     </>
@@ -194,13 +267,28 @@ interface SidebarLayoutProps {
 function SidebarLayout({ children }: SidebarLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const handleClose = React.useCallback(() => setSidebarOpen(false), []);
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const initials = arabicInitials(
+    user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : user?.email
+  );
+
+  const handleLogout = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        router.push("/login");
+      },
+    });
+  };
 
   return (
     <div className="flex min-h-dvh bg-background">
       <Sidebar open={sidebarOpen} onClose={handleClose} />
 
-      <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-white/80 backdrop-blur-sm px-4 dark:bg-muted/80 lg:px-8">
+      <div className="flex flex-1 flex-col min-w-0">
+        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-4 border-b border-border bg-card/80 backdrop-blur-sm px-4 dark:bg-card/80 lg:px-8">
           <Button
             variant="ghost"
             size="sm"
@@ -212,9 +300,67 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
           </Button>
           <div className="flex-1" />
           <NotificationBell />
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>م</AvatarFallback>
-          </Avatar>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative size-9 rounded-full border border-primary/20 bg-primary/15 p-0 hover:bg-primary/20"
+                aria-label="قائمة الحساب"
+              >
+                <Avatar className="size-9">
+                  <AvatarFallback className="bg-primary/15 text-xs font-semibold text-primary">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-52" sideOffset={8}>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col gap-0.5 text-start">
+                    <span className="text-sm font-medium">
+                      {user?.employee ? `${user.employee.firstName} ${user.employee.lastName}` : "مستخدم"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {user?.email}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                {HEADER_MENU_LINKS.map((item) => {
+                  const Icon = item.icon;
+                  const active =
+                    pathname === item.href ||
+                    (item.href !== "/" &&
+                      pathname.startsWith(item.href));
+                  return (
+                    <DropdownMenuItem
+                      key={item.href}
+                      className={cn(
+                        active && "bg-primary/10 text-primary"
+                      )}
+                      onClick={() => router.push(item.href)}
+                    >
+                      <Icon className="size-4" />
+                      {item.title}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={handleLogout}
+              >
+                <LogOut className="size-4" />
+                تسجيل الخروج
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         <main className="flex-1 p-4 lg:p-8">{children}</main>
@@ -255,7 +401,7 @@ function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute end-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-white shadow-lg dark:bg-muted">
+          <div className="absolute end-0 top-full z-50 mt-2 w-80 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg">
             <div className="flex items-center justify-between border-b border-border p-3">
               <h3 className="text-sm font-semibold text-foreground">الإشعارات</h3>
               {unreadCount > 0 && (

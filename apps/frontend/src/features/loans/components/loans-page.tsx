@@ -126,85 +126,150 @@ export function LoansPage() {
           <CardTitle>جميع السلف</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-8" />
-                <TableHead>الموظف</TableHead>
-                <TableHead>نوع السلفة</TableHead>
-                <TableHead className="text-end">المبلغ</TableHead>
-                <TableHead className="text-end">المتبقي</TableHead>
-                <TableHead className="text-end">الخصم الشهري</TableHead>
-                <TableHead>تاريخ البداية</TableHead>
-                <TableHead>الحالة</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loans.map((loan) => {
-                const config = statusConfig[loan.status];
-                const isExpanded = expandedRow === loan.id;
-                return (
-                  <React.Fragment key={loan.id}>
-                    <TableRow
+          {/* Desktop Table */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-8" />
+                  <TableHead>الموظف</TableHead>
+                  <TableHead>نوع السلفة</TableHead>
+                  <TableHead className="text-end">المبلغ</TableHead>
+                  <TableHead className="text-end">المتبقي</TableHead>
+                  <TableHead className="text-end">الخصم الشهري</TableHead>
+                  <TableHead>تاريخ البداية</TableHead>
+                  <TableHead>الحالة</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loans.map((loan) => {
+                  const config = statusConfig[loan.status];
+                  const isExpanded = expandedRow === loan.id;
+                  return (
+                    <React.Fragment key={loan.id}>
+                      <TableRow
+                        className="cursor-pointer"
+                        onClick={() => toggleExpand(loan.id)}
+                      >
+                        <TableCell className="w-8">
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">{loan.employeeName}</TableCell>
+                        <TableCell>{loan.loanType}</TableCell>
+                        <TableCell className="text-end font-medium">{formatCurrency(loan.amount)}</TableCell>
+                        <TableCell className="text-end">{formatCurrency(loan.remaining)}</TableCell>
+                        <TableCell className="text-end">{formatCurrency(loan.monthlyDeduction)}</TableCell>
+                        <TableCell>{loan.startDate}</TableCell>
+                        <TableCell>
+                          <Badge variant={config.variant}>{config.label}</Badge>
+                        </TableCell>
+                      </TableRow>
+                      {isExpanded && (
+                        <TableRow>
+                          <TableCell colSpan={8} className="bg-muted/30 p-0">
+                            <div className="p-4">
+                              <h4 className="mb-3 text-sm font-semibold text-foreground">جدول الأقساط</h4>
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>تاريخ الاستحقاق</TableHead>
+                                    <TableHead className="text-end">المبلغ</TableHead>
+                                    <TableHead>تاريخ الدفع</TableHead>
+                                    <TableHead>الحالة</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {loan.installments.map((inst) => {
+                                    const instConfig = installmentStatusConfig[inst.status];
+                                    return (
+                                      <TableRow key={inst.id}>
+                                        <TableCell>{inst.dueDate}</TableCell>
+                                        <TableCell className="text-end">{formatCurrency(inst.amount)}</TableCell>
+                                        <TableCell>{inst.paidDate || "-"}</TableCell>
+                                        <TableCell>
+                                          <Badge variant={instConfig.variant}>{instConfig.label}</Badge>
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {loans.map((loan) => {
+              const config = statusConfig[loan.status];
+              const isExpanded = expandedRow === loan.id;
+              return (
+                <Card key={loan.id}>
+                  <CardContent className="p-4">
+                    <div
                       className="cursor-pointer"
                       onClick={() => toggleExpand(loan.id)}
                     >
-                      <TableCell className="w-8">
-                        {isExpanded ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium">{loan.employeeName}</TableCell>
-                      <TableCell>{loan.loanType}</TableCell>
-                      <TableCell className="text-end font-medium">{formatCurrency(loan.amount)}</TableCell>
-                      <TableCell className="text-end">{formatCurrency(loan.remaining)}</TableCell>
-                      <TableCell className="text-end">{formatCurrency(loan.monthlyDeduction)}</TableCell>
-                      <TableCell>{loan.startDate}</TableCell>
-                      <TableCell>
-                        <Badge variant={config.variant}>{config.label}</Badge>
-                      </TableCell>
-                    </TableRow>
-                    {isExpanded && (
-                      <TableRow>
-                        <TableCell colSpan={8} className="bg-muted/30 p-0">
-                          <div className="p-4">
-                            <h4 className="mb-3 text-sm font-semibold text-foreground">جدول الأقساط</h4>
-                            <Table>
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead>تاريخ الاستحقاق</TableHead>
-                                  <TableHead className="text-end">المبلغ</TableHead>
-                                  <TableHead>تاريخ الدفع</TableHead>
-                                  <TableHead>الحالة</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {loan.installments.map((inst) => {
-                                  const instConfig = installmentStatusConfig[inst.status];
-                                  return (
-                                    <TableRow key={inst.id}>
-                                      <TableCell>{inst.dueDate}</TableCell>
-                                      <TableCell className="text-end">{formatCurrency(inst.amount)}</TableCell>
-                                      <TableCell>{inst.paidDate || "-"}</TableCell>
-                                      <TableCell>
-                                        <Badge variant={instConfig.variant}>{instConfig.label}</Badge>
-                                      </TableCell>
-                                    </TableRow>
-                                  );
-                                })}
-                              </TableBody>
-                            </Table>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-foreground">{loan.employeeName}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{loan.loanType}</p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <Badge variant={config.variant} className="text-[10px]">{config.label}</Badge>
+                            <span className="text-xs text-muted-foreground">{loan.startDate}</span>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="text-end">
+                            <p className="text-sm font-medium text-foreground">{formatCurrency(loan.amount)}</p>
+                            <p className="text-xs text-muted-foreground">متبقي: {formatCurrency(loan.remaining)}</p>
+                          </div>
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div className="mt-4 border-t border-border pt-4">
+                        <h4 className="mb-3 text-sm font-semibold text-foreground">جدول الأقساط</h4>
+                        <div className="space-y-2">
+                          {loan.installments.map((inst) => {
+                            const instConfig = installmentStatusConfig[inst.status];
+                            return (
+                              <div key={inst.id} className="flex items-center justify-between text-sm">
+                                <div>
+                                  <p className="text-foreground">{inst.dueDate}</p>
+                                  <p className="text-xs text-muted-foreground">دفع: {inst.paidDate || "-"}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-foreground font-medium">{formatCurrency(inst.amount)}</span>
+                                  <Badge variant={instConfig.variant} className="text-[10px]">{instConfig.label}</Badge>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
-                  </React.Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 

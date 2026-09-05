@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -69,39 +70,94 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>الموظف</TableHead>
-            <TableHead>المسمى الوظيفي</TableHead>
-            <TableHead>القسم</TableHead>
-            <TableHead>الحالة</TableHead>
-            <TableHead>تاريخ الالتحاق</TableHead>
-            <TableHead className="text-start">الإجراءات</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.length > 0 ? (
-            data.map((employee) => (
-              <TableRow key={employee.id}>
-                <TableCell>
-                  <div>
-                    <p className="font-medium text-foreground">
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>الموظف</TableHead>
+              <TableHead>المسمى الوظيفي</TableHead>
+              <TableHead>القسم</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead>تاريخ الالتحاق</TableHead>
+              <TableHead className="text-start">الإجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.length > 0 ? (
+              data.map((employee) => (
+                <TableRow key={employee.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {employee.firstName} {employee.lastName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{employee.email}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>{resolveName(employee.position)}</TableCell>
+                  <TableCell>{resolveName(employee.department)}</TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariantMap[employee.status]}>
+                      {statusLabelMap[employee.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{employee.joinDate}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Link href={`/employees/${employee.id}`}>
+                        <Button variant="ghost" size="sm" aria-label="عرض الموظف">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Link href={`/employees/${employee.id}/edit`}>
+                        <Button variant="ghost" size="sm" aria-label="تعديل الموظف">
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(employee)} aria-label="حذف الموظف">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  لم يتم العثور على موظفين.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-3">
+        {data.length > 0 ? (
+          data.map((employee) => (
+            <Card key={employee.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-foreground truncate">
                       {employee.firstName} {employee.lastName}
                     </p>
-                    <p className="text-xs text-muted-foreground">{employee.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{employee.email}</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span>{resolveName(employee.position)}</span>
+                      <span className="text-border">|</span>
+                      <span>{resolveName(employee.department)}</span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge variant={statusVariantMap[employee.status]} className="text-[10px]">
+                        {statusLabelMap[employee.status]}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{employee.joinDate}</span>
+                    </div>
                   </div>
-                </TableCell>
-                <TableCell>{resolveName(employee.position)}</TableCell>
-                <TableCell>{resolveName(employee.department)}</TableCell>
-                <TableCell>
-                  <Badge variant={statusVariantMap[employee.status]}>
-                    {statusLabelMap[employee.status]}
-                  </Badge>
-                </TableCell>
-                <TableCell>{employee.joinDate}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <Link href={`/employees/${employee.id}`}>
                       <Button variant="ghost" size="sm" aria-label="عرض الموظف">
                         <Eye className="h-4 w-4" />
@@ -116,18 +172,18 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
-                لم يتم العثور على موظفين.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-sm text-muted-foreground">لم يتم العثور على موظفين.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent>

@@ -138,7 +138,7 @@ export function LoginForm() {
       <div className="flex items-center justify-center p-6 sm:p-12 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--color-primary-start)] to-[var(--color-primary-end)] shadow-lg">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg">
               <span className="text-2xl font-bold text-white">ق</span>
             </div>
             <h1 className="text-3xl font-bold text-foreground">
