@@ -12,6 +12,12 @@ const statusVariantMap: Record<PayrollCycle["status"], "default" | "warning" | "
   completed: "success",
 };
 
+const statusLabelMap: Record<PayrollCycle["status"], string> = {
+  draft: "مسودة",
+  processing: "قيد المعالجة",
+  completed: "مكتملة",
+};
+
 interface PayrollCycleCardProps {
   cycle: PayrollCycle;
   onProcess?: (id: string) => void;
@@ -32,17 +38,17 @@ export function PayrollCycleCard({ cycle, onProcess }: PayrollCycleCardProps) {
                   {cycle.month} {cycle.year}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {cycle.payslipCount} payslips
+                  {cycle.payslipCount} قسيمة راتب
                 </p>
               </div>
             </div>
           </div>
-          <Badge variant={statusVariantMap[cycle.status]}>{cycle.status}</Badge>
+          <Badge variant={statusVariantMap[cycle.status]}>{statusLabelMap[cycle.status]}</Badge>
         </div>
 
         <div className="mt-4 flex items-center justify-between">
           <p className="text-lg font-bold text-foreground">
-            {new Intl.NumberFormat("en-US", {
+            {new Intl.NumberFormat("ar-EG", {
               style: "currency",
               currency: "EGP",
             }).format(cycle.totalAmount)}
@@ -50,7 +56,7 @@ export function PayrollCycleCard({ cycle, onProcess }: PayrollCycleCardProps) {
           {cycle.status === "draft" && onProcess && (
             <Button size="sm" onClick={() => onProcess(cycle.id)}>
               <Play className="h-4 w-4" />
-              Process
+              معالجة
             </Button>
           )}
         </div>

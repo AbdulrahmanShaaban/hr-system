@@ -22,14 +22,14 @@ import { PayrollCycleCard } from "./payroll-cycle-card";
 import { usePayrollCycles, useCreateCycle, useProcessCycle } from "../hooks/use-payroll";
 
 const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
 ];
 
 const placeholderCycles = [
-  { id: "1", month: "October", year: 2025, status: "completed" as const, payslipCount: 142, totalAmount: 2450000, createdAt: "2025-10-01" },
-  { id: "2", month: "September", year: 2025, status: "completed" as const, payslipCount: 138, totalAmount: 2380000, createdAt: "2025-09-01" },
-  { id: "3", month: "November", year: 2025, status: "draft" as const, payslipCount: 0, totalAmount: 0, createdAt: "2025-11-01" },
+  { id: "1", month: "أكتوبر", year: 2025, status: "completed" as const, payslipCount: 142, totalAmount: 2450000, createdAt: "2025-10-01" },
+  { id: "2", month: "سبتمبر", year: 2025, status: "completed" as const, payslipCount: 138, totalAmount: 2380000, createdAt: "2025-09-01" },
+  { id: "3", month: "نوفمبر", year: 2025, status: "draft" as const, payslipCount: 0, totalAmount: 0, createdAt: "2025-11-01" },
 ];
 
 export function PayrollPage() {
@@ -55,14 +55,14 @@ export function PayrollPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Payroll</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">الرواتب</h1>
           <p className="mt-1 text-muted-foreground">
-            Manage payroll cycles and process payments.
+            إدارة دورات الرواتب ومعالجة المدفوعات.
           </p>
         </div>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" />
-          New Cycle
+          دورة جديدة
         </Button>
       </div>
 
@@ -79,14 +79,14 @@ export function PayrollPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create Payroll Cycle</DialogTitle>
+            <DialogTitle>إنشاء دورة رواتب</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Month</label>
+              <label className="text-sm font-medium text-foreground">الشهر</label>
               <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select month" />
+                  <SelectValue placeholder="اختر الشهر" />
                 </SelectTrigger>
                 <SelectContent>
                   {months.map((m) => (
@@ -98,10 +98,10 @@ export function PayrollPage() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Year</label>
+              <label className="text-sm font-medium text-foreground">السنة</label>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select year" />
+                  <SelectValue placeholder="اختر السنة" />
                 </SelectTrigger>
                 <SelectContent>
                   {[2024, 2025, 2026].map((y) => (
@@ -115,11 +115,11 @@ export function PayrollPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
+              إلغاء
             </Button>
             <Button onClick={handleCreate} disabled={!selectedMonth || createCycle.isPending}>
               {createCycle.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              Create Cycle
+              إنشاء الدورة
             </Button>
           </DialogFooter>
         </DialogContent>

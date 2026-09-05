@@ -17,6 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className="text-sm font-medium text-foreground"
           >
             {label}
+            {props.required && <span className="text-danger me-1">*</span>}
           </label>
         )}
         <input

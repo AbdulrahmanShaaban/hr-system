@@ -7,17 +7,17 @@ import { KpiCard } from "./kpi-card";
 import { useAuth } from "@/features/auth/hooks/use-auth";
 
 const placeholderKpis = [
-  { icon: <Users className="h-5 w-5" />, value: "142", label: "Total Employees", trend: 5 },
-  { icon: <UserCheck className="h-5 w-5" />, value: "98", label: "Active Today", trend: 12 },
-  { icon: <CalendarOff className="h-5 w-5" />, value: "12", label: "Pending Leave", trend: -3 },
-  { icon: <DollarSign className="h-5 w-5" />, value: "Oct 2025", label: "Payroll Status" },
+  { icon: <Users className="h-5 w-5" />, value: "142", label: "إجمالي الموظفين", trend: 5 },
+  { icon: <UserCheck className="h-5 w-5" />, value: "98", label: "حاضرين اليوم", trend: 12 },
+  { icon: <CalendarOff className="h-5 w-5" />, value: "12", label: "إجازات معلقة", trend: -3 },
+  { icon: <DollarSign className="h-5 w-5" />, value: "أكتوبر 2025", label: "حالة الرواتب" },
 ];
 
 const placeholderActivity = [
-  { id: "1", message: "Ahmed Hassan submitted a leave request", timestamp: "2 hours ago" },
-  { id: "2", message: "Payroll for September has been processed", timestamp: "5 hours ago" },
-  { id: "3", message: "New employee Sara Ali joined the team", timestamp: "1 day ago" },
-  { id: "4", message: "Mohamed attended overtime on Friday", timestamp: "2 days ago" },
+  { id: "1", message: "أحمد حسن تقدّم بطلب إجازة", timestamp: "منذ ساعتين" },
+  { id: "2", message: "تم معالجة رواتب شهر سبتمبر", timestamp: "منذ 5 ساعات" },
+  { id: "3", message: "الموظفة الجديدة سارة علي انضمت للفريق", timestamp: "منذ يوم" },
+  { id: "4", message: "محمد سجّل ساعات إضافية يوم الجمعة", timestamp: "منذ يومين" },
 ];
 
 export function DashboardPage() {
@@ -27,10 +27,10 @@ export function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Welcome back{user?.employee ? `, ${user.employee.firstName}` : ""}
+          مرحباً بعودتك{user?.employee ? `، ${user.employee.firstName}` : ""}
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Here&apos;s what&apos;s happening with your organization today.
+          إليك آخر المستجدات في نظامك.
         </p>
       </div>
 
@@ -42,7 +42,7 @@ export function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>النشاط الأخير</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

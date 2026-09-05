@@ -18,6 +18,12 @@ const statusVariantMap: Record<Employee["status"], "success" | "warning" | "dang
   inactive: "danger",
 };
 
+const statusLabelMap: Record<Employee["status"], string> = {
+  active: "نشط",
+  "on-leave": "في إجازة",
+  inactive: "غير نشط",
+};
+
 interface EmployeeTableProps {
   data: Employee[];
 }
@@ -27,11 +33,11 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Employee</TableHead>
-          <TableHead>Position</TableHead>
-          <TableHead>Department</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Join Date</TableHead>
+          <TableHead>الموظف</TableHead>
+          <TableHead>المسمى الوظيفي</TableHead>
+          <TableHead>القسم</TableHead>
+          <TableHead>الحالة</TableHead>
+          <TableHead>تاريخ الالتحاق</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -50,7 +56,7 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
               <TableCell>{employee.department}</TableCell>
               <TableCell>
                 <Badge variant={statusVariantMap[employee.status]}>
-                  {employee.status}
+                  {statusLabelMap[employee.status]}
                 </Badge>
               </TableCell>
               <TableCell>{employee.joinDate}</TableCell>
@@ -59,7 +65,7 @@ export function EmployeeTable({ data }: EmployeeTableProps) {
         ) : (
           <TableRow>
             <TableCell colSpan={5} className="h-24 text-center">
-              No employees found.
+              لم يتم العثور على موظفين.
             </TableCell>
           </TableRow>
         )}

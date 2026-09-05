@@ -39,38 +39,38 @@ export function LeaveForm({ onSuccess, onCancel }: LeaveFormProps) {
   return (
     <div className="grid gap-4 py-2">
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-foreground">Leave Type</label>
+        <label className="text-sm font-medium text-foreground">نوع الإجازة</label>
         <Select value={leaveType} onValueChange={setLeaveType}>
           <SelectTrigger>
-            <SelectValue placeholder="Select leave type" />
+            <SelectValue placeholder="اختر نوع الإجازة" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Annual Leave">Annual Leave</SelectItem>
-            <SelectItem value="Sick Leave">Sick Leave</SelectItem>
-            <SelectItem value="Personal Leave">Personal Leave</SelectItem>
-            <SelectItem value="Maternity Leave">Maternity Leave</SelectItem>
-            <SelectItem value="Unpaid Leave">Unpaid Leave</SelectItem>
+            <SelectItem value="Annual Leave">إجازة سنوية</SelectItem>
+            <SelectItem value="Sick Leave">إجازة مرضية</SelectItem>
+            <SelectItem value="Personal Leave">إجازة شخصية</SelectItem>
+            <SelectItem value="Maternity Leave">إجازة أمومة</SelectItem>
+            <SelectItem value="Unpaid Leave">إجازة بدون راتب</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <Input
           type="date"
-          label="Start Date"
+          label="تاريخ البداية"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
         />
         <Input
           type="date"
-          label="End Date"
+          label="تاريخ النهاية"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
       </div>
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-foreground">Reason</label>
+        <label className="text-sm font-medium text-foreground">السبب</label>
         <Textarea
-          placeholder="Enter reason for leave..."
+          placeholder="أدخل سبب الإجازة..."
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={3}
@@ -78,11 +78,11 @@ export function LeaveForm({ onSuccess, onCancel }: LeaveFormProps) {
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="outline" onClick={onCancel}>
-          Cancel
+          إلغاء
         </Button>
         <Button onClick={handleSubmit} disabled={!isValid || createRequest.isPending}>
           {createRequest.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          Submit Request
+          إرسال الطلب
         </Button>
       </div>
     </div>

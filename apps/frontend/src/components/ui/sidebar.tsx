@@ -21,13 +21,13 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Employees", href: "/employees", icon: Users },
-  { name: "Attendance", href: "/attendance", icon: Clock },
-  { name: "Leave", href: "/leave", icon: CalendarOff },
-  { name: "Payroll", href: "/payroll", icon: DollarSign },
-  { name: "Loans", href: "/loans", icon: Landmark },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "لوحة التحكم", href: "/", icon: LayoutDashboard },
+  { name: "الموظفين", href: "/employees", icon: Users },
+  { name: "الحضور والانصراف", href: "/attendance", icon: Clock },
+  { name: "الإجازات", href: "/leave", icon: CalendarOff },
+  { name: "الرواتب", href: "/payroll", icon: DollarSign },
+  { name: "السلف", href: "/loans", icon: Landmark },
+  { name: "الإعدادات", href: "/settings", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -49,16 +49,18 @@ function Sidebar({ open, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-border bg-white transition-transform duration-200 dark:bg-muted lg:static lg:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 start-0 z-50 flex w-72 flex-col border-s border-border bg-white transition-transform duration-200 dark:bg-muted lg:static lg:translate-x-0",
+          open ? "translate-x-0" : "translate-x-full"
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-border px-6">
+        <div className="flex h-16 items-center justify-between border-b border-border ps-6 pe-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.svg" alt="Qawam" width={36} height={36} priority />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-primary-start)] to-[var(--color-primary-end)]">
+              <span className="text-lg font-bold text-white">ق</span>
+            </div>
             <div className="flex flex-col leading-none">
-              <span className="text-lg font-bold text-foreground tracking-tight">Qawam</span>
-              <span className="text-[11px] font-medium text-muted-foreground">قَوام</span>
+              <span className="text-lg font-bold text-foreground tracking-tight">قَـــوام</span>
+              <span className="text-[11px] font-medium text-muted-foreground">إدارة الموارد البشرية</span>
             </div>
           </Link>
           <Button
@@ -101,11 +103,11 @@ function Sidebar({ open, onClose }: SidebarProps) {
         <div className="border-t border-border p-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
-              <AvatarFallback>AD</AvatarFallback>
+              <AvatarFallback>م</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                Admin User
+                مدير النظام
               </p>
               <p className="text-xs text-muted-foreground truncate">
                 admin@qawam.com
@@ -144,7 +146,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
           </Button>
           <div className="flex-1" />
           <Avatar className="h-8 w-8">
-            <AvatarFallback>AD</AvatarFallback>
+            <AvatarFallback>م</AvatarFallback>
           </Avatar>
         </header>
 

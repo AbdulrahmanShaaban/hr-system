@@ -27,20 +27,20 @@ export function ClockInOut() {
   return (
     <div className="flex items-center gap-3">
       <span className="text-sm text-muted-foreground">
-        Status:{" "}
+        الحالة:{" "}
         <span className={currentStatus === "clocked-in" ? "text-success font-medium" : "text-muted-foreground"}>
-          {currentStatus === "clocked-in" ? "Clocked In" : "Clocked Out"}
+          {currentStatus === "clocked-in" ? "تم تسجيل الحضور" : "لم يتم التسجيل بعد"}
         </span>
       </span>
       {currentStatus === "clocked-out" ? (
         <Button onClick={handleClockIn} disabled={isLoading}>
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-          Clock In
+          تسجيل حضور
         </Button>
       ) : (
         <Button variant="destructive" onClick={handleClockOut} disabled={isLoading}>
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-          Clock Out
+          تسجيل انصراف
         </Button>
       )}
     </div>

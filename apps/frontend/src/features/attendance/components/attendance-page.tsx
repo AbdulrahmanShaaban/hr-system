@@ -25,20 +25,20 @@ import { useAttendance } from "../hooks/use-attendance";
 import type { AttendanceRecord } from "../types/attendance.types";
 
 const placeholderRecords: AttendanceRecord[] = [
-  { id: "1", employeeId: "1", employeeName: "Ahmed Hassan", date: "2025-11-01", clockIn: "08:55", clockOut: "17:10", status: "PRESENT", minutesLate: 0, overtimeMinutes: 10, notes: null },
-  { id: "2", employeeId: "2", employeeName: "Sara Ali", date: "2025-11-01", clockIn: "09:20", clockOut: "17:30", status: "LATE", minutesLate: 20, overtimeMinutes: 30, notes: null },
-  { id: "3", employeeId: "3", employeeName: "Mohamed Khaled", date: "2025-11-01", clockIn: null, clockOut: null, status: "ABSENT", minutesLate: 0, overtimeMinutes: 0, notes: null },
-  { id: "4", employeeId: "4", employeeName: "Fatma Omar", date: "2025-11-01", clockIn: "09:00", clockOut: "13:00", status: "HALF_DAY", minutesLate: 0, overtimeMinutes: 0, notes: "Half day" },
-  { id: "5", employeeId: "5", employeeName: "Youssef Ibrahim", date: "2025-11-01", clockIn: null, clockOut: null, status: "ON_LEAVE", minutesLate: 0, overtimeMinutes: 0, notes: "Annual leave" },
+  { id: "1", employeeId: "1", employeeName: "أحمد حسن", date: "2025-11-01", clockIn: "08:55", clockOut: "17:10", status: "PRESENT", minutesLate: 0, overtimeMinutes: 10, notes: null },
+  { id: "2", employeeId: "2", employeeName: "سارة علي", date: "2025-11-01", clockIn: "09:20", clockOut: "17:30", status: "LATE", minutesLate: 20, overtimeMinutes: 30, notes: null },
+  { id: "3", employeeId: "3", employeeName: "محمد خالد", date: "2025-11-01", clockIn: null, clockOut: null, status: "ABSENT", minutesLate: 0, overtimeMinutes: 0, notes: null },
+  { id: "4", employeeId: "4", employeeName: "فاطمة عمر", date: "2025-11-01", clockIn: "09:00", clockOut: "13:00", status: "HALF_DAY", minutesLate: 0, overtimeMinutes: 0, notes: "نصف يوم" },
+  { id: "5", employeeId: "5", employeeName: "يوسف إبراهيم", date: "2025-11-01", clockIn: null, clockOut: null, status: "ON_LEAVE", minutesLate: 0, overtimeMinutes: 0, notes: "إجازة سنوية" },
 ];
 
 const statusConfig: Record<string, { variant: "success" | "danger" | "warning" | "info" | "default"; label: string }> = {
-  PRESENT: { variant: "success", label: "Present" },
-  ABSENT: { variant: "danger", label: "Absent" },
-  LATE: { variant: "warning", label: "Late" },
-  HALF_DAY: { variant: "info", label: "Half Day" },
-  ON_LEAVE: { variant: "default", label: "On Leave" },
-  HOLIDAY: { variant: "default", label: "Holiday" },
+  PRESENT: { variant: "success", label: "حاضر" },
+  ABSENT: { variant: "danger", label: "غائب" },
+  LATE: { variant: "warning", label: "متأخر" },
+  HALF_DAY: { variant: "info", label: "نصف يوم" },
+  ON_LEAVE: { variant: "default", label: "في إجازة" },
+  HOLIDAY: { variant: "default", label: "عطلة رسمية" },
 };
 
 export function AttendancePage() {
@@ -59,9 +59,9 @@ export function AttendancePage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Attendance</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">الحضور والانصراف</h1>
           <p className="mt-1 text-muted-foreground">
-            Track employee attendance and working hours.
+            تتبع حضور الموظفين وساعات العمل.
           </p>
         </div>
         <ClockInOut />
@@ -70,7 +70,7 @@ export function AttendancePage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Present</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الحاضرين</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">{totalPresent}</div>
@@ -78,7 +78,7 @@ export function AttendancePage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Absent</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الغائبين</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-danger">{totalAbsent}</div>
@@ -86,7 +86,7 @@ export function AttendancePage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Late</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي المتأخرين</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">{totalLate}</div>
@@ -94,7 +94,7 @@ export function AttendancePage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Overtime Hours</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">ساعات العمل الإضافي</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{totalOvertimeHours.toFixed(1)}</div>
@@ -104,33 +104,33 @@ export function AttendancePage() {
 
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>Attendance Records</CardTitle>
+          <CardTitle>سجلات الحضور</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Input
               type="date"
-              placeholder="Start Date"
+              placeholder="تاريخ البداية"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="w-full sm:w-40"
             />
             <Input
               type="date"
-              placeholder="End Date"
+              placeholder="تاريخ النهاية"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="w-full sm:w-40"
             />
             <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Employees" />
+                <SelectValue placeholder="جميع الموظفين" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Employees</SelectItem>
-                <SelectItem value="1">Ahmed Hassan</SelectItem>
-                <SelectItem value="2">Sara Ali</SelectItem>
-                <SelectItem value="3">Mohamed Khaled</SelectItem>
-                <SelectItem value="4">Fatma Omar</SelectItem>
-                <SelectItem value="5">Youssef Ibrahim</SelectItem>
+                <SelectItem value="all">جميع الموظفين</SelectItem>
+                <SelectItem value="1">أحمد حسن</SelectItem>
+                <SelectItem value="2">سارة علي</SelectItem>
+                <SelectItem value="3">محمد خالد</SelectItem>
+                <SelectItem value="4">فاطمة عمر</SelectItem>
+                <SelectItem value="5">يوسف إبراهيم</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -139,13 +139,13 @@ export function AttendancePage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Clock In</TableHead>
-                <TableHead>Clock Out</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Late</TableHead>
-                <TableHead className="text-right">Overtime</TableHead>
+                <TableHead>الموظف</TableHead>
+                <TableHead>التاريخ</TableHead>
+                <TableHead>وقت الحضور</TableHead>
+                <TableHead>وقت الانصراف</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead className="text-end">التأخير</TableHead>
+                <TableHead className="text-end">العمل الإضافي</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -160,16 +160,16 @@ export function AttendancePage() {
                     <TableCell>
                       <Badge variant={config.variant}>{config.label}</Badge>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       {record.minutesLate > 0 ? (
-                        <span className="text-danger font-medium">{record.minutesLate}m</span>
+                        <span className="text-danger font-medium">{record.minutesLate} د</span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-end">
                       {record.overtimeMinutes > 0 ? (
-                        <span className="text-success font-medium">{record.overtimeMinutes}m</span>
+                        <span className="text-success font-medium">{record.overtimeMinutes} د</span>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}

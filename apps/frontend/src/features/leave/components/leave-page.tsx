@@ -25,18 +25,18 @@ import { useLeaveRequests } from "../hooks/use-leave";
 import type { LeaveRequest } from "../types/leave.types";
 
 const placeholderRequests: LeaveRequest[] = [
-  { id: "1", employeeName: "Ahmed Hassan", leaveType: "Annual Leave", startDate: "2025-11-10", endDate: "2025-11-14", days: 5, reason: "Family vacation", status: "APPROVED" },
-  { id: "2", employeeName: "Sara Ali", leaveType: "Sick Leave", startDate: "2025-11-03", endDate: "2025-11-04", days: 2, reason: "Feeling unwell", status: "PENDING" },
-  { id: "3", employeeName: "Mohamed Khaled", leaveType: "Annual Leave", startDate: "2025-11-20", endDate: "2025-11-22", days: 3, reason: "Personal matters", status: "REJECTED" },
-  { id: "4", employeeName: "Fatma Omar", leaveType: "Maternity Leave", startDate: "2025-12-01", endDate: "2026-03-01", days: 90, reason: "Maternity", status: "PENDING" },
-  { id: "5", employeeName: "Youssef Ibrahim", leaveType: "Annual Leave", startDate: "2025-11-05", endDate: "2025-11-05", days: 1, reason: "Day off", status: "CANCELLED" },
+  { id: "1", employeeName: "أحمد حسن", leaveType: "إجازة سنوية", startDate: "2025-11-10", endDate: "2025-11-14", days: 5, reason: "سفر عائلي", status: "APPROVED" },
+  { id: "2", employeeName: "سارة علي", leaveType: "إجازة مرضية", startDate: "2025-11-03", endDate: "2025-11-04", days: 2, reason: "شعور بعدم الارتياح", status: "PENDING" },
+  { id: "3", employeeName: "محمد خالد", leaveType: "إجازة سنوية", startDate: "2025-11-20", endDate: "2025-11-22", days: 3, reason: "أمور شخصية", status: "REJECTED" },
+  { id: "4", employeeName: "فاطمة عمر", leaveType: "إجازة أمومة", startDate: "2025-12-01", endDate: "2026-03-01", days: 90, reason: "إجازة أمومة", status: "PENDING" },
+  { id: "5", employeeName: "يوسف إبراهيم", leaveType: "إجازة سنوية", startDate: "2025-11-05", endDate: "2025-11-05", days: 1, reason: "يوم راحة", status: "CANCELLED" },
 ];
 
 const statusConfig: Record<string, { variant: "warning" | "success" | "danger" | "default"; label: string }> = {
-  PENDING: { variant: "warning", label: "Pending" },
-  APPROVED: { variant: "success", label: "Approved" },
-  REJECTED: { variant: "danger", label: "Rejected" },
-  CANCELLED: { variant: "default", label: "Cancelled" },
+  PENDING: { variant: "warning", label: "قيد المراجعة" },
+  APPROVED: { variant: "success", label: "معتمدة" },
+  REJECTED: { variant: "danger", label: "مرفوضة" },
+  CANCELLED: { variant: "default", label: "ملغاة" },
 };
 
 export function LeavePage() {
@@ -54,21 +54,21 @@ export function LeavePage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Leave Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">إدارة الإجازات</h1>
           <p className="mt-1 text-muted-foreground">
-            Manage employee leave requests and balances.
+            إدارة طلبات إجازات الموظفين والأرصدة.
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="h-4 w-4" />
-          Request Leave
+          طلب إجازة
         </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Requests</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">طلبات معلقة</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">{pendingCount}</div>
@@ -76,7 +76,7 @@ export function LeavePage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Approved This Month</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">المعتمدة هذا الشهر</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">{approvedCount}</div>
@@ -84,7 +84,7 @@ export function LeavePage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Days Taken</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي الأيام المأخوذة</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{totalDaysTaken}</div>
@@ -94,19 +94,19 @@ export function LeavePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Leave Requests</CardTitle>
+          <CardTitle>طلبات الإجازات</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Leave Type</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>End Date</TableHead>
-                <TableHead className="text-right">Days</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Reason</TableHead>
+                <TableHead>الموظف</TableHead>
+                <TableHead>نوع الإجازة</TableHead>
+                <TableHead>تاريخ البداية</TableHead>
+                <TableHead>تاريخ النهاية</TableHead>
+                <TableHead className="text-end">الأيام</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>السبب</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -118,7 +118,7 @@ export function LeavePage() {
                     <TableCell>{request.leaveType}</TableCell>
                     <TableCell>{request.startDate}</TableCell>
                     <TableCell>{request.endDate}</TableCell>
-                    <TableCell className="text-right">{request.days}</TableCell>
+                    <TableCell className="text-end">{request.days}</TableCell>
                     <TableCell>
                       <Badge variant={config.variant}>{config.label}</Badge>
                     </TableCell>
@@ -136,7 +136,7 @@ export function LeavePage() {
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Request Leave</DialogTitle>
+            <DialogTitle>طلب إجازة</DialogTitle>
           </DialogHeader>
           <LeaveForm
             onSuccess={() => setFormOpen(false)}
