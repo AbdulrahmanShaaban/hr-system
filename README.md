@@ -8,12 +8,9 @@
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@acme.com | password123 |
-| Owner | owner@qawam.sa | Owner@1234 |
-| HR Manager | hr@qawam.sa | Hr@12345 |
-| Accountant | accountant@qawam.sa | Accountant@123 |
-| Employee | employee@qawam.sa | Employee@123 |
-| Platform Admin | platform@admin.com | Platform@123 |
+| Owner | faisal@qawam.sa | Owner@1234 |
+| Employee | sultan.midhani@qawam.sa | Emp@12345 |
+| Platform Admin | admin@qawam.sa | Platform@123 |
 
 ---
 

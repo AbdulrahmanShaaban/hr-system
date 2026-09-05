@@ -8,43 +8,36 @@ async function main() {
 
   const tenant = await prisma.tenant.create({
     data: {
-      name: 'Acme Corp',
-      slug: 'acme-corp',
-      email: 'info@acme.com',
-      phone: '+20 123 456 7890',
-      address: '123 Business Street, Cairo, Egypt',
-      timezone: 'Africa/Cairo',
-      currency: 'EGP',
+      name: 'Qawam',
+      slug: 'qawam',
+      email: 'info@qawam.sa',
+      phone: '+966 50 123 4567',
+      address: 'Riyadh, Saudi Arabia',
+      timezone: 'Asia/Riyadh',
+      currency: 'SAR',
     },
   });
   console.log(`Created tenant: ${tenant.name}`);
 
-  const passwordHash = await bcrypt.hash('password123', 10);
-  const adminUser = await prisma.user.create({
-    data: {
-      email: 'admin@acme.com',
-      passwordHash,
-      isActive: true,
-    },
+  const ownerHash = await bcrypt.hash('Owner@1234', 10);
+  const empHash = await bcrypt.hash('Emp@12345', 10);
+  const platformHash = await bcrypt.hash('Platform@123', 10);
+
+  const ownerUser = await prisma.user.create({
+    data: { email: 'faisal@qawam.sa', passwordHash: ownerHash, isActive: true },
   });
-  console.log(`Created admin user: ${adminUser.email}`);
+  const empUser = await prisma.user.create({
+    data: { email: 'sultan.midhani@qawam.sa', passwordHash: empHash, isActive: true },
+  });
+  const platformUser = await prisma.user.create({
+    data: { email: 'admin@qawam.sa', passwordHash: platformHash, isActive: true },
+  });
+  console.log('Created 3 users');
 
   const departments = await Promise.all([
-    prisma.department.create({
-      data: { tenantId: tenant.id, name: 'Engineering' },
-    }),
-    prisma.department.create({
-      data: { tenantId: tenant.id, name: 'HR' },
-    }),
-    prisma.department.create({
-      data: { tenantId: tenant.id, name: 'Finance' },
-    }),
-    prisma.department.create({
-      data: { tenantId: tenant.id, name: 'Marketing' },
-    }),
-    prisma.department.create({
-      data: { tenantId: tenant.id, name: 'Operations' },
-    }),
+    prisma.department.create({ data: { tenantId: tenant.id, name: 'تقنية المعلومات' } }),
+    prisma.department.create({ data: { tenantId: tenant.id, name: 'الموارد البشرية' } }),
+    prisma.department.create({ data: { tenantId: tenant.id, name: 'المالية' } }),
   ]);
   console.log(`Created ${departments.length} departments`);
 
@@ -62,21 +55,19 @@ async function main() {
     prisma.role.create({
       data: {
         tenantId: tenant.id,
-        name: 'Owner',
+        name: 'المالك',
         isSystem: true,
-        permissions: {
-          create: permissions.map((p) => ({ permissionId: p.id })),
-        },
+        permissions: { create: permissions.map((p) => ({ permissionId: p.id })) },
       },
     }),
     prisma.role.create({
       data: {
         tenantId: tenant.id,
-        name: 'HR Manager',
+        name: 'موظف',
         isSystem: true,
         permissions: {
           create: permissions
-            .filter((p) => p.code !== 'FULL_ACCESS')
+            .filter((p) => ['VIEW_REPORTS', 'MANAGE_ATTENDANCE'].includes(p.code))
             .map((p) => ({ permissionId: p.id })),
         },
       },
@@ -84,13 +75,9 @@ async function main() {
     prisma.role.create({
       data: {
         tenantId: tenant.id,
-        name: 'Employee',
+        name: 'مدير المنصة',
         isSystem: true,
-        permissions: {
-          create: permissions
-            .filter((p) => ['VIEW_REPORTS'].includes(p.code))
-            .map((p) => ({ permissionId: p.id })),
-        },
+        permissions: { create: permissions.map((p) => ({ permissionId: p.id })) },
       },
     }),
   ]);
@@ -100,37 +87,28 @@ async function main() {
     prisma.shift.create({
       data: {
         tenantId: tenant.id,
-        name: 'Morning Shift',
+        name: 'وردية صباحية',
         startTime: '09:00',
         endTime: '17:00',
         gracePeriodMinutes: 15,
       },
     }),
-    prisma.shift.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Evening Shift',
-        startTime: '14:00',
-        endTime: '22:00',
-        gracePeriodMinutes: 15,
-      },
-    }),
   ]);
-  console.log(`Created ${shifts.length} shifts`);
+  console.log(`Created ${shifts.length} shift`);
 
   const employees = await Promise.all([
     prisma.employee.create({
       data: {
         tenantId: tenant.id,
-        userId: adminUser.id,
+        userId: ownerUser.id,
         employeeCode: 'EMP001',
-        firstName: 'Ahmed',
-        lastName: 'Hassan',
-        phone: '+20 100 111 2222',
-        hireDate: new Date('2022-01-15'),
+        firstName: 'فيصل',
+        lastName: 'الشمري',
+        phone: '+966 50 111 2222',
+        hireDate: new Date('2023-01-15'),
         status: 'ACTIVE',
-        position: 'CEO',
-        basicSalary: 50000,
+        position: 'المالك',
+        basicSalary: 60000,
         departmentId: departments[0].id,
         roleId: roles[0].id,
         shiftId: shifts[0].id,
@@ -139,146 +117,18 @@ async function main() {
     prisma.employee.create({
       data: {
         tenantId: tenant.id,
+        userId: empUser.id,
         employeeCode: 'EMP002',
-        firstName: 'Sara',
-        lastName: 'Ali',
-        phone: '+20 101 222 3333',
-        hireDate: new Date('2022-03-20'),
+        firstName: 'سلطان',
+        lastName: 'المدهني',
+        phone: '+966 50 222 3333',
+        hireDate: new Date('2023-06-01'),
         status: 'ACTIVE',
-        position: 'HR Manager',
-        basicSalary: 25000,
-        departmentId: departments[1].id,
-        roleId: roles[1].id,
-        shiftId: shifts[0].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP003',
-        firstName: 'Mohamed',
-        lastName: 'Ibrahim',
-        phone: '+20 102 333 4444',
-        hireDate: new Date('2022-06-01'),
-        status: 'ACTIVE',
-        position: 'Senior Engineer',
+        position: 'مبرمج',
         basicSalary: 30000,
         departmentId: departments[0].id,
-        roleId: roles[2].id,
-        shiftId: shifts[0].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP004',
-        firstName: 'Fatma',
-        lastName: 'Mahmoud',
-        phone: '+20 103 444 5555',
-        hireDate: new Date('2023-01-10'),
-        status: 'ACTIVE',
-        position: 'Accountant',
-        basicSalary: 20000,
-        departmentId: departments[2].id,
-        roleId: roles[2].id,
-        shiftId: shifts[0].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP005',
-        firstName: 'Omar',
-        lastName: 'Khaled',
-        phone: '+20 104 555 6666',
-        hireDate: new Date('2023-03-15'),
-        status: 'ACTIVE',
-        position: 'Marketing Specialist',
-        basicSalary: 18000,
-        departmentId: departments[3].id,
-        roleId: roles[2].id,
-        shiftId: shifts[0].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP006',
-        firstName: 'Nour',
-        lastName: 'Ahmed',
-        phone: '+20 105 666 7777',
-        hireDate: new Date('2023-05-20'),
-        status: 'ACTIVE',
-        position: 'Operations Lead',
-        basicSalary: 22000,
-        departmentId: departments[4].id,
-        roleId: roles[2].id,
-        shiftId: shifts[1].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP007',
-        firstName: 'Yasmin',
-        lastName: 'Farouk',
-        phone: '+20 106 777 8888',
-        hireDate: new Date('2023-07-01'),
-        status: 'ON_LEAVE',
-        position: 'Software Engineer',
-        basicSalary: 28000,
-        departmentId: departments[0].id,
-        roleId: roles[2].id,
-        shiftId: shifts[0].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP008',
-        firstName: 'Karim',
-        lastName: 'Saeed',
-        phone: '+20 107 888 9999',
-        hireDate: new Date('2023-09-10'),
-        status: 'ACTIVE',
-        position: 'Junior Developer',
-        basicSalary: 15000,
-        departmentId: departments[0].id,
-        roleId: roles[2].id,
-        shiftId: shifts[1].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP009',
-        firstName: 'Hana',
-        lastName: 'Mostafa',
-        phone: '+20 108 999 0000',
-        hireDate: new Date('2024-01-05'),
-        status: 'ACTIVE',
-        position: 'Marketing Manager',
-        basicSalary: 24000,
-        departmentId: departments[3].id,
         roleId: roles[1].id,
         shiftId: shifts[0].id,
-      },
-    }),
-    prisma.employee.create({
-      data: {
-        tenantId: tenant.id,
-        employeeCode: 'EMP010',
-        firstName: 'Tarek',
-        lastName: 'Nabil',
-        phone: '+20 109 000 1111',
-        hireDate: new Date('2024-03-20'),
-        status: 'TERMINATED',
-        position: 'Sales Representative',
-        basicSalary: 12000,
-        departmentId: departments[4].id,
-        roleId: roles[2].id,
-        shiftId: shifts[1].id,
-        terminationDate: new Date('2024-08-01'),
       },
     }),
   ]);
@@ -286,75 +136,16 @@ async function main() {
 
   const leaveTypes = await Promise.all([
     prisma.leaveType.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Annual Leave',
-        defaultDays: 21,
-        isPaid: true,
-        carriesForward: true,
-      },
+      data: { tenantId: tenant.id, name: 'إجازة سنوية', defaultDays: 21, isPaid: true, carriesForward: true },
     }),
     prisma.leaveType.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Sick Leave',
-        defaultDays: 15,
-        isPaid: true,
-        carriesForward: false,
-      },
+      data: { tenantId: tenant.id, name: 'إجازة مرضية', defaultDays: 15, isPaid: true, carriesForward: false },
     }),
     prisma.leaveType.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Casual Leave',
-        defaultDays: 7,
-        isPaid: true,
-        carriesForward: false,
-      },
-    }),
-    prisma.leaveType.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Unpaid Leave',
-        defaultDays: 30,
-        isPaid: false,
-        carriesForward: false,
-      },
+      data: { tenantId: tenant.id, name: 'إجازة شخصية', defaultDays: 7, isPaid: true, carriesForward: false },
     }),
   ]);
   console.log(`Created ${leaveTypes.length} leave types`);
-
-  const attendanceRecords = [];
-  for (let i = 0; i < 5; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-    for (const emp of employees.slice(0, 6)) {
-      const clockIn = new Date(dateOnly);
-      clockIn.setHours(9, Math.floor(Math.random() * 15), 0, 0);
-
-      const clockOut = new Date(dateOnly);
-      clockOut.setHours(17, Math.floor(Math.random() * 30), 0, 0);
-
-      attendanceRecords.push(
-        prisma.attendance.create({
-          data: {
-            tenantId: tenant.id,
-            employeeId: emp.id,
-            date: dateOnly,
-            clockIn,
-            clockOut,
-            status: Math.random() > 0.1 ? 'PRESENT' : 'LATE',
-            minutesLate: Math.random() > 0.8 ? Math.floor(Math.random() * 30) : 0,
-            overtimeMinutes: Math.random() > 0.9 ? Math.floor(Math.random() * 60) : 0,
-          },
-        }),
-      );
-    }
-  }
-  await Promise.all(attendanceRecords);
-  console.log(`Created ${attendanceRecords.length} attendance records`);
 
   console.log('Seeding completed successfully!');
 }
