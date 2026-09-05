@@ -21,7 +21,10 @@ const mockPrisma = {
   },
   attendance: {
     upsert: jest.fn(),
+    createMany: jest.fn(),
+    updateMany: jest.fn(),
   },
+  $transaction: jest.fn((fns: unknown[]) => Promise.all(fns)),
 };
 
 const mockEventEmitter = {
@@ -115,7 +118,7 @@ describe('LeaveService', () => {
   });
 
   describe('approveLeave', () => {
-    it('should approve pending leave and upsert attendance as ON_LEAVE', async () => {
+    it('should approve pending leave and create attendance records via transaction', async () => {
       const mockRequest = {
         id: 'lr-1',
         employeeId: 'emp-1',
@@ -128,12 +131,15 @@ describe('LeaveService', () => {
 
       mockPrisma.leaveRequest.findUniqueOrThrow.mockResolvedValue(mockRequest);
       mockPrisma.leaveRequest.update.mockResolvedValue({ ...mockRequest, status: 'APPROVED' });
-      mockPrisma.attendance.upsert.mockResolvedValue({});
+      mockPrisma.attendance.createMany.mockResolvedValue({ count: 3 });
+      mockPrisma.attendance.updateMany.mockResolvedValue({ count: 3 });
 
       const result = await service.approveLeave('lr-1', 'approver-1');
 
       expect(result.status).toBe('APPROVED');
-      expect(mockPrisma.attendance.upsert).toHaveBeenCalledTimes(3); // 3 days
+      expect(mockPrisma.$transaction).toHaveBeenCalled();
+      expect(mockPrisma.attendance.createMany).toHaveBeenCalled();
+      expect(mockPrisma.attendance.updateMany).toHaveBeenCalled();
     });
 
     it('should emit leave.approved event', async () => {
@@ -147,7 +153,8 @@ describe('LeaveService', () => {
         leaveType: { isPaid: true },
       });
       mockPrisma.leaveRequest.update.mockResolvedValue({ status: 'APPROVED' });
-      mockPrisma.attendance.upsert.mockResolvedValue({});
+      mockPrisma.attendance.createMany.mockResolvedValue({ count: 1 });
+      mockPrisma.attendance.updateMany.mockResolvedValue({ count: 1 });
 
       await service.approveLeave('lr-1', 'approver-1');
 
@@ -182,11 +189,13 @@ describe('LeaveService', () => {
         leaveType: {},
       });
       mockPrisma.leaveRequest.update.mockResolvedValue({});
-      mockPrisma.attendance.upsert.mockResolvedValue({});
+      mockPrisma.attendance.createMany.mockResolvedValue({ count: 2 });
+      mockPrisma.attendance.updateMany.mockResolvedValue({ count: 2 });
 
       await service.approveLeave('lr-1', 'approver-1');
 
-      expect(mockPrisma.attendance.upsert).toHaveBeenCalledTimes(2);
+      expect(mockPrisma.attendance.createMany).toHaveBeenCalled();
+      expect(mockPrisma.attendance.updateMany).toHaveBeenCalled();
     });
   });
 
@@ -215,7 +224,7 @@ describe('LeaveService', () => {
 
       await service.rejectLeave('lr-1', 'approver-1');
 
-      expect(mockPrisma.attendance.upsert).not.toHaveBeenCalled();
+      expect(mockPrisma.attendance.createMany).not.toHaveBeenCalled();
     });
 
     it('should throw if leave is not pending', async () => {

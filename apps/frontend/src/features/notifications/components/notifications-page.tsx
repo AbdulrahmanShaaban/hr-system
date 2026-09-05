@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api-client";
 import { useToast } from "@/components/ui/toaster";
+import { useAuth } from "@/features/auth/hooks/use-auth";
 
 interface Notification {
   id: string;
@@ -46,10 +47,12 @@ export function NotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const { addToast } = useToast();
+  const { user } = useAuth();
 
-  const employeeId = "me";
+  const employeeId = user?.employee?.id ?? "";
 
   const fetchNotifications = useCallback(async () => {
+    if (!employeeId) return;
     setLoading(true);
     try {
       const res = await api.get<Notification[]>(`/notifications/employee/${employeeId}`);
@@ -59,7 +62,7 @@ export function NotificationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [addToast]);
+  }, [addToast, employeeId]);
 
   useEffect(() => {
     fetchNotifications();

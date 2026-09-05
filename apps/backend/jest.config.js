@@ -4,6 +4,9 @@ module.exports = {
   rootDir: 'src',
   testRegex: '.*\\.spec\\.ts$',
   transform: { '^.+\\.(t|j)s$': '@swc/jest' },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(@nestjs|@prisma|rxjs|passport|bcrypt|class-validator|class-transformer)/)',
+  ],
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',

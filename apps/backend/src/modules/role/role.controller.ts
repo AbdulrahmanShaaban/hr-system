@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/
 import { RoleService } from './role.service';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { Prisma } from '@prisma/client';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Controller('roles')
 export class RoleController {
@@ -19,13 +19,13 @@ export class RoleController {
   }
 
   @Post()
-  create(@CurrentTenant() tenantId: string, @Body() data: Prisma.RoleCreateInput) {
-    return this.roleService.create({ ...data, tenant: { connect: { id: tenantId } } });
+  create(@CurrentTenant() tenantId: string, @Body('name') name: string) {
+    return this.roleService.create({ name, tenant: { connect: { id: tenantId } } });
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.RoleUpdateInput) {
-    return this.roleService.update(id, data);
+  update(@Param('id') id: string, @Body() dto: UpdateRoleDto) {
+    return this.roleService.update(id, dto);
   }
 
   @Put(':id/permissions')

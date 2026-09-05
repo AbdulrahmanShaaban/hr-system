@@ -6,6 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -111,10 +126,10 @@ export function DepartmentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">الأقسام</h1>
-          <p className="text-sm text-muted-foreground">إدارة أقسام المؤسسة والهيكل التنظيمي</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">الأقسام</h1>
+          <p className="mt-1 text-muted-foreground">إدارة أقسام المؤسسة والهيكل التنظيمي</p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="ms-2 h-4 w-4" />
@@ -123,7 +138,7 @@ export function DepartmentsPage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base">جميع الأقسام ({filtered.length})</CardTitle>
           <Input
             placeholder="بحث عن قسم..."
@@ -142,26 +157,24 @@ export function DepartmentsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border text-end">
-                    <th className="pb-3 text-sm font-semibold text-muted-foreground">القسم</th>
-                    <th className="pb-3 text-sm font-semibold text-muted-foreground">القسم الأب</th>
-                    <th className="pb-3 text-sm font-semibold text-muted-foreground">عدد الموظفين</th>
-                    <th className="pb-3 text-sm font-semibold text-muted-foreground">الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>القسم</TableHead>
+                    <TableHead>القسم الأب</TableHead>
+                    <TableHead>عدد الموظفين</TableHead>
+                    <TableHead className="text-end">الإجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filtered.map((dept: Department) => (
-                    <tr key={dept.id} className="border-b border-border last:border-0">
-                      <td className="py-3 text-sm font-medium text-foreground">{dept.name}</td>
-                      <td className="py-3 text-sm text-muted-foreground">
-                        {dept.parent?.name || "—"}
-                      </td>
-                      <td className="py-3 text-sm text-muted-foreground">
+                    <TableRow key={dept.id}>
+                      <TableCell className="font-medium">{dept.name}</TableCell>
+                      <TableCell>{dept.parent?.name || "—"}</TableCell>
+                      <TableCell>
                         <Badge>{dept._count?.employees ?? 0}</Badge>
-                      </td>
-                      <td className="py-3">
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center justify-end gap-1">
                           <Button variant="ghost" size="sm" onClick={() => openEdit(dept)} aria-label="تعديل القسم">
                             <Pencil className="h-4 w-4" />
@@ -170,11 +183,11 @@ export function DepartmentsPage() {
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>
@@ -196,22 +209,26 @@ export function DepartmentsPage() {
             </div>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">القسم الأب</label>
-              <select
-                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm dark:bg-muted"
-                value={form.parentId || ""}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, parentId: e.target.value || null }))
+              <Select
+                value={form.parentId || "__none__"}
+                onValueChange={(v) =>
+                  setForm((f) => ({ ...f, parentId: v === "__none__" ? null : v }))
                 }
               >
-                <option value="">بدون (قسم رئيسي)</option>
-                {departments
-                  .filter((d: Department) => d.id !== editing?.id)
-                  .map((d: Department) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="بدون (قسم رئيسي)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">بدون (قسم رئيسي)</SelectItem>
+                  {departments
+                    .filter((d: Department) => d.id !== editing?.id)
+                    .map((d: Department) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

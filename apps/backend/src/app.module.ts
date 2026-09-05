@@ -7,6 +7,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 import configuration from './core/config/configuration';
 import { PrismaModule } from './core/database/prisma.module';
 import { RedisModule } from './core/redis/redis.module';
@@ -66,6 +67,7 @@ import { SearchModule } from './modules/search/search.module';
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
     AppService,
   ],
 })

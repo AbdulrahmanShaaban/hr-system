@@ -3,7 +3,7 @@ import { EmployeeService } from './employee.service';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { Prisma } from '@prisma/client';
+import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
 @Controller('employees')
 export class EmployeeController {
@@ -25,8 +25,8 @@ export class EmployeeController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.EmployeeUpdateInput) {
-    return this.employeeService.update(id, data);
+  update(@Param('id') id: string, @Body() dto: UpdateEmployeeDto) {
+    return this.employeeService.update(id, dto);
   }
 
   @Delete(':id')

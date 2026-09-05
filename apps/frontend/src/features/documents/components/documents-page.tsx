@@ -42,9 +42,11 @@ interface Document {
   id: string;
   tenantId: string;
   employeeId: string;
-  name: string;
+  title: string;
   type: string;
-  url: string;
+  fileUrl: string;
+  mimeType: string;
+  category?: string;
   createdAt: string;
 }
 
@@ -120,8 +122,9 @@ export function DocumentsPage() {
     setUploading(true);
     try {
       await api.post("/documents", {
-        name: uploadName,
-        type: uploadType,
+        title: uploadName,
+        fileUrl: "#",
+        mimeType: uploadType,
         employeeId: uploadEmployeeId,
       });
       addToast({ title: "نجاح", description: "تم رفع المستند بنجاح", variant: "success" });
@@ -223,7 +226,7 @@ export function DocumentsPage() {
                       const config = typeConfig[doc.type] || typeConfig.OTHER;
                       return (
                         <TableRow key={doc.id}>
-                          <TableCell className="font-medium">{doc.name}</TableCell>
+                          <TableCell className="font-medium">{doc.title}</TableCell>
                           <TableCell>
                             <Badge variant={config.variant}>{config.label}</Badge>
                           </TableCell>
@@ -256,7 +259,7 @@ export function DocumentsPage() {
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-foreground">{doc.name}</p>
+                            <p className="font-medium text-foreground">{doc.title}</p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
                               <Badge variant={config.variant} className="text-[10px]">
                                 {config.label}

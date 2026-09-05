@@ -54,7 +54,7 @@ interface OnboardingStep {
   id: string;
   stepName: string;
   description?: string;
-  completed: boolean;
+  isCompleted: boolean;
 }
 
 export function OnboardingPage() {
@@ -260,7 +260,7 @@ export function OnboardingPage() {
     setTemplateSteps(updated);
   };
 
-  const completedCount = onboardingSteps.filter((s) => s.completed).length;
+  const completedCount = onboardingSteps.filter((s) => s.isCompleted).length;
   const totalCount = onboardingSteps.length;
   const progressPercent =
     totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
@@ -529,19 +529,19 @@ export function OnboardingPage() {
                           <div
                             key={step.id}
                             className={`flex items-start gap-4 rounded-lg border p-4 transition-colors ${
-                              step.completed
+                              step.isCompleted
                                 ? "border-success/30 bg-success/5"
                                 : "border-border"
                             }`}
                           >
                             <div
                               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                                step.completed
+                                step.isCompleted
                                   ? "bg-success text-white"
                                   : "bg-muted text-muted-foreground"
                               }`}
                             >
-                              {step.completed ? (
+                              {step.isCompleted ? (
                                 <Check className="h-4 w-4" />
                               ) : (
                                 index + 1
@@ -550,7 +550,7 @@ export function OnboardingPage() {
                             <div className="min-w-0 flex-1">
                               <p
                                 className={`font-medium ${
-                                  step.completed
+                                  step.isCompleted
                                     ? "text-success line-through"
                                     : "text-foreground"
                                 }`}
@@ -563,7 +563,7 @@ export function OnboardingPage() {
                                 </p>
                               )}
                             </div>
-                            {!step.completed && (
+                            {!step.isCompleted && (
                               <Button
                                 variant="outline"
                                 size="sm"
