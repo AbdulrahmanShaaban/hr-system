@@ -1,8 +1,25 @@
+export type OnboardingStep =
+  | "PRICING"
+  | "ATTENDANCE"
+  | "PAYROLL"
+  | "BENEFITS"
+  | "EMPLOYEES"
+  | "COMPLETE"
+  | null;
+
+export type SubscriptionStatus = "TRIAL" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | null;
+
 export interface User {
   id: string;
   email: string;
   isActive: boolean;
   lastLoginAt?: string;
+  onboardingStep: OnboardingStep;
+  onboardingCompletedAt: string | null;
+  isPlatformAdmin: boolean;
+  isPortalUser: boolean;
+  permissions: string[];
+  subscriptionStatus: SubscriptionStatus;
   employee?: {
     id: string;
     firstName: string;
@@ -16,6 +33,15 @@ export interface User {
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface RegisterPayload {
+  companyName: string;
+  email: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  jobTitle: string;
 }
 
 export interface AuthResponse {

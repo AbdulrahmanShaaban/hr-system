@@ -11,21 +11,37 @@ interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
 }
 
-function getAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("access_token");
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
 }
 
-export function setTokens(accessToken: string, refreshToken: string) {
-  localStorage.setItem("access_token", accessToken);
-  localStorage.setItem("refresh_token", refreshToken);
-  document.cookie = `access_token=${accessToken}; path=/; max-age=900; SameSite=Lax`;
+export function setTokens(_accessToken: string, _refreshToken: string) {
+  // Tokens are stored as HttpOnly cookies set by the backend.
+  // We do NOT write to localStorage or document.cookie for security.
+  // This function exists for API compatibility — the backend sets
+  // the cookies via Set-Cookie response headers on /auth/login.
+  // A short-lived non-sensitive token can be stored in memory for
+  // optimistic UI gating if needed.
 }
 
 export function clearTokens() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-  document.cookie = "access_token=; path=/; max-age=0";
+  // Cookies are cleared by the backend on /auth/logout.
+  // We clear any client-side session state here.
+  if (typeof window !== "undefined") {
+    // Clear the auth query cache
+    window.dispatchEvent(new Event("auth:logout"));
+  }
+}
+
+function getCsrfToken(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/csrf_token=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -37,27 +53,35 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     url += `?${searchParams.toString()}`;
   }
 
-  const token = getAccessToken();
   const method = fetchOptions.method || "GET";
   const headers: Record<string, string> = {
     ...(fetchOptions.headers as Record<string, string>),
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-  if (method !== "GET") {
+
+  // Credentials: "include" ensures HttpOnly cookies are sent with every request
+  const isFormData =
+    typeof FormData !== "undefined" && fetchOptions.body instanceof FormData;
+
+  if (method !== "GET" && !isFormData) {
     headers["Content-Type"] = "application/json";
+  }
+
+  // CSRF protection: include token header on state-changing requests
+  const csrfToken = getCsrfToken();
+  if (csrfToken && method !== "GET") {
+    headers["X-CSRF-Token"] = csrfToken;
   }
 
   const response = await fetch(url, {
     ...fetchOptions,
     method,
     headers,
+    credentials: "include", // Send HttpOnly cookies
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "An error occurred" }));
-    throw new Error(error.message || `HTTP error ${response.status}`);
+    const error = await response.json().catch(() => ({ message: "حدث خطأ ما" }));
+    throw new ApiError(error.message || `HTTP error ${response.status}`, response.status);
   }
 
   return response.json();
@@ -68,13 +92,25 @@ export const api = {
     request<T>(endpoint, { method: "GET", ...options }),
 
   post: <T>(endpoint: string, body?: unknown, options?: RequestOptions) =>
-    request<T>(endpoint, { method: "POST", body: body ? JSON.stringify(body) : undefined, ...options }),
+    request<T>(endpoint, {
+      method: "POST",
+      body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+      ...options,
+    }),
 
   put: <T>(endpoint: string, body?: unknown, options?: RequestOptions) =>
-    request<T>(endpoint, { method: "PUT", body: body ? JSON.stringify(body) : undefined, ...options }),
+    request<T>(endpoint, {
+      method: "PUT",
+      body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+      ...options,
+    }),
 
   patch: <T>(endpoint: string, body?: unknown, options?: RequestOptions) =>
-    request<T>(endpoint, { method: "PATCH", body: body ? JSON.stringify(body) : undefined, ...options }),
+    request<T>(endpoint, {
+      method: "PATCH",
+      body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+      ...options,
+    }),
 
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     request<T>(endpoint, { method: "DELETE", ...options }),

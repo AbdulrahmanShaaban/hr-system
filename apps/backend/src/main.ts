@@ -4,12 +4,46 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
+import cookieParser from 'cookie-parser';
+import * as crypto from 'crypto';
 import { AppModule } from './app.module';
 
 const expressApp = express();
 
+// CSRF middleware: generates token on GET requests, validates on state-changing requests
+function csrfMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
+  // Skip CSRF for GET/HEAD/OPTIONS and public paths
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+    // Ensure CSRF cookie exists
+    if (!req.cookies?.csrf_token) {
+      const token = crypto.randomBytes(32).toString('hex');
+      res.cookie('csrf_token', token, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production' || !!process.env.VERCEL,
+        sameSite: (process.env.NODE_ENV === 'production' || !!process.env.VERCEL) ? 'none' : 'lax',
+        path: '/',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+    }
+    return next();
+  }
+
+  // Validate CSRF on state-changing requests
+  const csrfFromCookie = req.cookies?.csrf_token;
+  const csrfFromHeader = req.headers['x-csrf-token'];
+
+  if (!csrfFromCookie || !csrfFromHeader || csrfFromCookie !== csrfFromHeader) {
+    return res.status(403).json({ message: 'CSRF token mismatch' });
+  }
+
+  next();
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+
+  // Parse cookies before CSRF
+  app.use(cookieParser());
 
   app.use(helmet());
   app.setGlobalPrefix('api/v1');
@@ -21,7 +55,11 @@ async function bootstrap() {
   app.enableCors({
     origin: corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
     credentials: true,
+    exposedHeaders: ['Set-Cookie'],
   });
+
+  // CSRF protection
+  app.use(csrfMiddleware);
 
   app.useGlobalPipes(
     new ValidationPipe({

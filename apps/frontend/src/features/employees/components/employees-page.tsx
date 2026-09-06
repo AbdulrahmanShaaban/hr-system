@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { Plus, Search, Download, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,10 +120,12 @@ export function EmployeesPage() {
             <Download className="h-4 w-4" />
             تصدير CSV
           </Button>
-          <Button onClick={() => setFormOpen(true)}>
-            <Plus className="h-4 w-4" />
-            إضافة موظف
-          </Button>
+          <Link href="/employees/new">
+            <Button>
+              <Plus className="h-4 w-4" />
+              إضافة موظف
+            </Button>
+          </Link>
         </div>
       </div>
 

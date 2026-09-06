@@ -12,7 +12,7 @@ import { useAuth } from "../hooks/use-auth";
 
 const loginSchema = z.object({
   email: z.string().email("يرجى إدخال بريد إلكتروني صحيح"),
-  password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
+  password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -181,7 +181,7 @@ export function LoginForm() {
                 تذكرني
               </label>
               <a
-                href="#"
+                href="/forgot-password"
                 className="text-primary hover:text-primary/80 font-medium transition-colors"
               >
                 نسيت كلمة المرور؟

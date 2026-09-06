@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import type { StringValue } from 'ms';
@@ -23,6 +23,8 @@ export class AuthService {
         employee: {
           include: {
             role: { include: { permissions: { include: { permission: true } } } },
+            department: true,
+            shift: true,
           },
         },
       },
@@ -70,17 +72,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        employee: user.employee
-          ? {
-              id: user.employee.id,
-              firstName: user.employee.firstName,
-              lastName: user.employee.lastName,
-            }
-          : null,
-      },
+      user: this.formatUser(user),
     };
   }
 
@@ -92,6 +84,15 @@ export class AuthService {
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
+        include: {
+          employee: {
+            include: {
+              role: { include: { permissions: { include: { permission: true } } } },
+              department: true,
+              shift: true,
+            },
+          },
+        },
       });
 
       if (!user || !user.refreshToken) {
@@ -103,23 +104,16 @@ export class AuthService {
         throw new UnauthorizedException('Access denied');
       }
 
-      const employee = await this.prisma.employee.findUnique({
-        where: { userId: user.id },
-        include: {
-          role: { include: { permissions: { include: { permission: true } } } },
-        },
-      });
-
       const permissions =
-        employee?.role?.permissions?.map(
+        user.employee?.role?.permissions?.map(
           (rp: { permission: { code: string } }) => rp.permission.code,
         ) || [];
 
       const newPayload = {
         sub: user.id,
         email: user.email,
-        tenantId: employee?.tenantId,
-        employeeId: employee?.id,
+        tenantId: user.employee?.tenantId,
+        employeeId: user.employee?.id,
         permissions,
       };
 
@@ -172,12 +166,36 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    return this.formatUser(user);
+  }
+
+  private formatUser(user: any) {
+    const permissions =
+      user.employee?.role?.permissions?.map(
+        (rp: { permission: { code: string } }) => rp.permission.code,
+      ) || [];
+
     return {
       id: user.id,
       email: user.email,
       isActive: user.isActive,
       lastLoginAt: user.lastLoginAt,
-      employee: user.employee,
+      onboardingStep: user.onboardingStep ?? null,
+      onboardingCompletedAt: user.onboardingCompletedAt ?? null,
+      isPlatformAdmin: user.isPlatformAdmin ?? false,
+      isPortalUser: user.isPortalUser ?? false,
+      permissions,
+      subscriptionStatus: user.subscriptionStatus ?? null,
+      employee: user.employee
+        ? {
+            id: user.employee.id,
+            firstName: user.employee.firstName,
+            lastName: user.employee.lastName,
+            department: user.employee.department,
+            role: user.employee.role,
+            shift: user.employee.shift,
+          }
+        : undefined,
     };
   }
 }

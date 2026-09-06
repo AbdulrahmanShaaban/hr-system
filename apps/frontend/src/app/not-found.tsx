@@ -7,7 +7,7 @@ export default function NotFound() {
       <p className="text-muted-foreground">الصفحة التي تبحث عنها غير موجودة.</p>
       <Link
         href="/"
-        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
       >
         العودة للرئيسية
       </Link>

@@ -18,6 +18,11 @@ const segmentLabels: Record<string, string> = {
   reports: "التقارير",
   approvals: "الطلبات المعلقة",
   onboarding: "التمهيد",
+  requests: "管理中心 الطلبات",
+  "my-requests": "طلباتي",
+  platform: "المنصة",
+  companies: "الشركات",
+  plans: "خطط الاشتراك",
 };
 
 export function SiteHeader() {

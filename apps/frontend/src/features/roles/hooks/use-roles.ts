@@ -2,7 +2,12 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { rolesApi } from "../api/roles.api";
-import type { CreateRolePayload } from "../types/role.types";
+import type {
+  CreateRolePayload,
+  UpdateRolePayload,
+  AssignableUser,
+  RoleUser,
+} from "../types/role.types";
 
 export function useRoles() {
   return useQuery({
@@ -19,6 +24,21 @@ export function useRole(id: string) {
   });
 }
 
+export function useRoleUsers(id: string) {
+  return useQuery({
+    queryKey: ["roles", id, "users"],
+    queryFn: () => rolesApi.getRoleUsers(id),
+    enabled: !!id,
+  });
+}
+
+export function useAllUsers() {
+  return useQuery({
+    queryKey: ["roles", "all-users"],
+    queryFn: () => rolesApi.getAllUsers(),
+  });
+}
+
 export function useCreateRole() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -30,9 +50,13 @@ export function useCreateRole() {
 export function useUpdateRole() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateRolePayload> }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateRolePayload }) =>
       rolesApi.update(id, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["roles"] }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["roles", variables.id, "users"] });
+    },
   });
 }
 
@@ -49,6 +73,33 @@ export function useAssignPermissions() {
   return useMutation({
     mutationFn: ({ id, permissionIds }: { id: string; permissionIds: string[] }) =>
       rolesApi.assignPermissions(id, permissionIds),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["roles"] }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", variables.id] });
+    },
+  });
+}
+
+export function useAssignUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ roleId, userId }: { roleId: string; userId: string }) =>
+      rolesApi.assignUser(roleId, userId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", variables.roleId, "users"] });
+    },
+  });
+}
+
+export function useUnassignUsers() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ roleId, userIds }: { roleId: string; userIds: string[] }) =>
+      rolesApi.unassignUsers(roleId, userIds),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      queryClient.invalidateQueries({ queryKey: ["roles", variables.roleId, "users"] });
+    },
   });
 }

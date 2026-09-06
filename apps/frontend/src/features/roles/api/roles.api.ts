@@ -1,5 +1,11 @@
 import { api } from "@/lib/api-client";
-import type { Role, CreateRolePayload } from "../types/role.types";
+import type {
+  Role,
+  RoleUser,
+  AssignableUser,
+  CreateRolePayload,
+  UpdateRolePayload,
+} from "../types/role.types";
 
 export const rolesApi = {
   getAll: (params?: Record<string, string>) =>
@@ -10,8 +16,8 @@ export const rolesApi = {
   create: (payload: CreateRolePayload) =>
     api.post<Role>("/roles", payload),
 
-  update: (id: string, payload: Partial<CreateRolePayload>) =>
-    api.put<Role>(`/roles/${id}`, payload),
+  update: (id: string, payload: UpdateRolePayload) =>
+    api.patch<Role>(`/roles/${id}`, payload),
 
   delete: (id: string) => api.delete(`/roles/${id}`),
 
@@ -20,4 +26,16 @@ export const rolesApi = {
 
   assignPermissions: (id: string, permissionIds: string[]) =>
     api.put(`/roles/${id}/permissions`, { permissionIds }),
+
+  getRoleUsers: (id: string) =>
+    api.get<RoleUser[]>(`/roles/${id}/users`),
+
+  getAllUsers: () =>
+    api.get<AssignableUser[]>("/roles/users"),
+
+  assignUser: (roleId: string, userId: string) =>
+    api.patch(`/users/${userId}/role`, { roleId }),
+
+  unassignUsers: (roleId: string, userIds: string[]) =>
+    api.post(`/roles/${roleId}/users/unassign`, { userIds }),
 };

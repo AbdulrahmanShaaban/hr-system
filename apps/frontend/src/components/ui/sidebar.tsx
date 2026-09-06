@@ -24,6 +24,10 @@ import {
   CalendarCheck,
   CalendarDays,
   BarChart3,
+  Inbox,
+  FileText,
+  Globe,
+  CreditCard,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -74,6 +78,8 @@ const navigation: NavGroup[] = [
   {
     label: "الطلبات والاعتمادات",
     items: [
+      { name: "管理中心 الطلبات", href: "/requests", icon: Inbox },
+      { name: "طلباتي", href: "/my-requests", icon: FileText },
       { name: "الطلبات المعلقة", href: "/approvals", icon: FileCheck },
       { name: "التمهيد", href: "/onboarding", icon: ClipboardList },
     ],
@@ -94,6 +100,14 @@ const navigation: NavGroup[] = [
     ],
   },
 ];
+
+const platformAdminGroup: NavGroup = {
+  label: "إدارة المنصة",
+  items: [
+    { name: "الشركات", href: "/platform/companies", icon: Globe },
+    { name: "خطط الاشتراك", href: "/platform/plans", icon: CreditCard },
+  ],
+};
 
 const HEADER_MENU_LINKS = [
   { title: "لوحة التحكم", href: "/", icon: LayoutDashboard },
@@ -208,6 +222,40 @@ function Sidebar({ open, onClose }: SidebarProps) {
               </div>
             </div>
           ))}
+          {user?.isPlatformAdmin && (
+            <div key={platformAdminGroup.label}>
+              <p className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-muted-foreground">
+                {platformAdminGroup.label}
+              </p>
+              <div className="space-y-0.5">
+                {platformAdminGroup.items.map((item) => {
+                  const isActive =
+                    pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={isMobile ? onClose : undefined}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          "h-5 w-5",
+                          isActive ? "text-primary" : "text-muted-foreground"
+                        )}
+                      />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </nav>
 
         <div className="border-t border-border p-4">
