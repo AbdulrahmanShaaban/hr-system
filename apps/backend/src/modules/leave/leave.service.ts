@@ -1,6 +1,8 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class LeaveService {
@@ -143,12 +145,26 @@ export class LeaveService {
     });
   }
 
-  async findAll(tenantId: string) {
-    return this.prisma.leaveRequest.findMany({
-      where: { tenantId },
-      include: { employee: true, leaveType: true },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(tenantId: string, query: PaginationDto) {
+    const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+    const where: Prisma.LeaveRequestWhereInput = { tenantId };
+    if (search) {
+      where.OR = [
+        { reason: { contains: search, mode: 'insensitive' } },
+        { employee: { firstName: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.leaveRequest.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        include: { employee: true, leaveType: true },
+      }),
+      this.prisma.leaveRequest.count({ where }),
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findByEmployee(employeeId: string) {

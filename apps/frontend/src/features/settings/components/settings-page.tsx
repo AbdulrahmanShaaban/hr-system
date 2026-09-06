@@ -10,6 +10,7 @@ import { LeaveTypesSection } from "./leave-types-section";
 import { LoanTypesSection } from "./loan-types-section";
 import { ShiftsSection } from "./shifts-section";
 import { useToast } from "@/components/ui/toaster";
+import { ScrollIndicator } from "@/components/scroll-indicator";
 
 interface SettingsSection {
   id: string;
@@ -45,7 +46,8 @@ export function SettingsPage() {
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
-        <nav className="flex lg:w-56 flex-row lg:flex-col gap-1 overflow-x-auto">
+        <ScrollIndicator className="lg:w-56 shrink-0" fadeColor="var(--background)">
+          <nav className="flex flex-row lg:flex-col gap-1 overflow-x-auto">
           {sections.map((section) => (
             <button
               key={section.id}
@@ -61,6 +63,7 @@ export function SettingsPage() {
             </button>
           ))}
         </nav>
+        </ScrollIndicator>
 
         <div className="flex-1 min-w-0">
           {activeSection === "company" && <CompanySection onSave={handleSave} />}

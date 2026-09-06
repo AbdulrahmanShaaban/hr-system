@@ -1,5 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class AttendanceService {
@@ -112,11 +114,26 @@ export class AttendanceService {
     });
   }
 
-  async findAll(tenantId: string) {
-    return this.prisma.attendance.findMany({
-      where: { tenantId },
-      include: { employee: true },
-      orderBy: { date: 'desc' },
-    });
+  async findAll(tenantId: string, query: PaginationDto) {
+    const { page = 1, limit = 20, search, sortBy = 'date', sortOrder = 'desc' } = query;
+    const where: Prisma.AttendanceWhereInput = { tenantId };
+    if (search) {
+      where.OR = [
+        { employee: { firstName: { contains: search, mode: 'insensitive' } } },
+        { employee: { lastName: { contains: search, mode: 'insensitive' } } },
+        { notes: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.attendance.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        include: { employee: true },
+      }),
+      this.prisma.attendance.count({ where }),
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 }

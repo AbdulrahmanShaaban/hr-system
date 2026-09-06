@@ -18,6 +18,7 @@ const mockPrisma = {
     update: jest.fn(),
     aggregate: jest.fn(),
     findMany: jest.fn(),
+    count: jest.fn(),
   },
   attendance: {
     upsert: jest.fn(),
@@ -244,9 +245,11 @@ describe('LeaveService', () => {
       mockPrisma.leaveRequest.findMany.mockResolvedValue([
         { id: 'lr-1', employee: {}, leaveType: {} },
       ]);
+      mockPrisma.leaveRequest.count.mockResolvedValue(1);
 
-      const result = await service.findAll('tenant-1');
-      expect(result).toHaveLength(1);
+      const result = await service.findAll('tenant-1', {});
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
     });
   });
 

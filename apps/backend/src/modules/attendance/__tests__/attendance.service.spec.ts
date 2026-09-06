@@ -12,6 +12,7 @@ const mockPrisma = {
     create: jest.fn(),
     update: jest.fn(),
     findMany: jest.fn(),
+    count: jest.fn(),
   },
 };
 
@@ -230,9 +231,11 @@ describe('AttendanceService', () => {
       mockPrisma.attendance.findMany.mockResolvedValue([
         { id: 'att-1', tenantId: 'tenant-1', employee: { id: 'emp-1' } },
       ]);
+      mockPrisma.attendance.count.mockResolvedValue(1);
 
-      const result = await service.findAll('tenant-1');
-      expect(result).toHaveLength(1);
+      const result = await service.findAll('tenant-1', {});
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
     });
   });
 });

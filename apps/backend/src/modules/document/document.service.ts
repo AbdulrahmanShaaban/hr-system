@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateDocumentDto } from './dto/document.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class DocumentService {
@@ -19,12 +21,26 @@ export class DocumentService {
     });
   }
 
-  async findAll(tenantId: string) {
-    return this.prisma.document.findMany({
-      where: { tenantId },
-      include: { employee: true },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(tenantId: string, query: PaginationDto) {
+    const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+    const where: Prisma.DocumentWhereInput = { tenantId };
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.document.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        include: { employee: true },
+      }),
+      this.prisma.document.count({ where }),
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findByEmployee(employeeId: string) {

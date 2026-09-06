@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { LoanService } from './loan.service';
 import { RequestLoanDto } from './dto/loan.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('loans')
 export class LoanController {
@@ -26,8 +28,8 @@ export class LoanController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string) {
-    return this.loanService.findAll(tenantId);
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.loanService.findAll(tenantId, query);
   }
 
   @Get('types')

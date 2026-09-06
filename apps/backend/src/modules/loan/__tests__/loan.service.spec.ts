@@ -17,6 +17,7 @@ const mockPrisma = {
     update: jest.fn(),
     findFirst: jest.fn(),
     findMany: jest.fn(),
+    count: jest.fn(),
   },
   loanInstallment: {
     findUniqueOrThrow: jest.fn(),
@@ -258,9 +259,11 @@ describe('LoanService', () => {
       mockPrisma.loan.findMany.mockResolvedValue([
         { id: 'loan-1', employee: {}, loanType: {} },
       ]);
+      mockPrisma.loan.count.mockResolvedValue(1);
 
-      const result = await service.findAll('tenant-1');
-      expect(result).toHaveLength(1);
+      const result = await service.findAll('tenant-1', {});
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
     });
   });
 

@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateShiftDto, UpdateShiftDto } from './dto/shift.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class ShiftService {
@@ -25,11 +27,22 @@ export class ShiftService {
     });
   }
 
-  async findAll(tenantId: string) {
-    return this.prisma.shift.findMany({
-      where: { tenantId },
-      orderBy: { name: 'asc' },
-    });
+  async findAll(tenantId: string, query: PaginationDto) {
+    const { page = 1, limit = 20, search, sortBy = 'name', sortOrder = 'asc' } = query;
+    const where: Prisma.ShiftWhereInput = { tenantId };
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.shift.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+      }),
+      this.prisma.shift.count({ where }),
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findOne(id: string) {

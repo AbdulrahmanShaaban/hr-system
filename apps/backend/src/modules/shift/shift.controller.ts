@@ -6,10 +6,12 @@ import {
   Delete,
   Body,
   Param,
+  Query,
 } from '@nestjs/common';
 import { ShiftService } from './shift.service';
 import { CreateShiftDto, UpdateShiftDto } from './dto/shift.dto';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('shifts')
 export class ShiftController {
@@ -21,8 +23,8 @@ export class ShiftController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string) {
-    return this.shiftService.findAll(tenantId);
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.shiftService.findAll(tenantId, query);
   }
 
   @Get(':id')

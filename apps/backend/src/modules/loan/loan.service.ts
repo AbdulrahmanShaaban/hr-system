@@ -1,7 +1,8 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { InstallmentStatus } from '@prisma/client';
+import { InstallmentStatus, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Injectable()
 export class LoanService {
@@ -112,12 +113,26 @@ export class LoanService {
     });
   }
 
-  async findAll(tenantId: string) {
-    return this.prisma.loan.findMany({
-      where: { tenantId },
-      include: { employee: true, loanType: true },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(tenantId: string, query: PaginationDto) {
+    const { page = 1, limit = 20, search, sortBy = 'createdAt', sortOrder = 'desc' } = query;
+    const where: Prisma.LoanWhereInput = { tenantId };
+    if (search) {
+      where.OR = [
+        { employee: { firstName: { contains: search, mode: 'insensitive' } } },
+        { loanType: { name: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.loan.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+        include: { employee: true, loanType: true },
+      }),
+      this.prisma.loan.count({ where }),
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findAllLoanTypes(tenantId: string) {

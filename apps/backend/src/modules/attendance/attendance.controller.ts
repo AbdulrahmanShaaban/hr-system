@@ -12,6 +12,7 @@ import { AttendanceService } from './attendance.service';
 import { ClockInDto, ClockOutDto, GetAttendanceDto } from './dto/attendance.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('attendance')
 export class AttendanceController {
@@ -39,7 +40,7 @@ export class AttendanceController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string) {
-    return this.attendanceService.findAll(tenantId);
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.attendanceService.findAll(tenantId, query);
   }
 }

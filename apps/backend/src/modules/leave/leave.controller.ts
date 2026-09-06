@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { LeaveService } from './leave.service';
 import { RequestLeaveDto } from './dto/leave.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('leaves')
 export class LeaveController {
@@ -28,8 +30,8 @@ export class LeaveController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string) {
-    return this.leaveService.findAll(tenantId);
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.leaveService.findAll(tenantId, query);
   }
 
   @Get('employee/:employeeId')

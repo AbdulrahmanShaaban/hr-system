@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../../core/database/prisma.service';
 import { CreateSalaryComponentDto, UpdateSalaryComponentDto } from './dto/salary-component.dto';
 import { Prisma } from '@prisma/client';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 interface FormulaNode {
   type: 'FIXED' | 'VARIABLE' | 'ADD' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE';
@@ -85,11 +86,22 @@ export class SalaryComponentService {
     });
   }
 
-  async findAll(tenantId: string) {
-    return this.prisma.salaryComponent.findMany({
-      where: { tenantId },
-      orderBy: { name: 'asc' },
-    });
+  async findAll(tenantId: string, query: PaginationDto) {
+    const { page = 1, limit = 20, search, sortBy = 'name', sortOrder = 'asc' } = query;
+    const where: Prisma.SalaryComponentWhereInput = { tenantId };
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+    const [data, total] = await Promise.all([
+      this.prisma.salaryComponent.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { [sortBy]: sortOrder },
+      }),
+      this.prisma.salaryComponent.count({ where }),
+    ]);
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async findOne(id: string) {

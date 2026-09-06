@@ -5,10 +5,12 @@ import {
   Delete,
   Body,
   Param,
+  Query,
 } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/document.dto';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('documents')
 export class DocumentController {
@@ -20,8 +22,8 @@ export class DocumentController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string) {
-    return this.documentService.findAll(tenantId);
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.documentService.findAll(tenantId, query);
   }
 
   @Get('employee/:employeeId')

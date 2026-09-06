@@ -6,10 +6,12 @@ import {
   Delete,
   Body,
   Param,
+  Query,
 } from '@nestjs/common';
 import { SalaryComponentService } from './salary-component.service';
 import { CreateSalaryComponentDto, UpdateSalaryComponentDto } from './dto/salary-component.dto';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('salary-components')
 export class SalaryComponentController {
@@ -21,8 +23,8 @@ export class SalaryComponentController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string) {
-    return this.salaryComponentService.findAll(tenantId);
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+    return this.salaryComponentService.findAll(tenantId, query);
   }
 
   @Get(':id')

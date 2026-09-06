@@ -38,6 +38,7 @@ import {
   useApproveRequest,
   useRejectRequest,
 } from "../hooks/use-requests";
+import { ScrollIndicator } from "@/components/scroll-indicator";
 import { RequestDetailDialog } from "./request-detail-dialog";
 import type { RequestItem, RequestStatus, RequestType } from "../types/request.types";
 import {
@@ -216,7 +217,7 @@ export function RequestsPage() {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_1px_3px_rgb(0,0,0,0.04)]">
+      <ScrollIndicator className="rounded-2xl border border-border/80 bg-card shadow-[0_1px_3px_rgb(0,0,0,0.04)]">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/20 hover:bg-muted/20">
@@ -370,7 +371,7 @@ export function RequestsPage() {
           onPageChange={setPage}
           onLimitChange={setLimit}
         />
-      </div>
+      </ScrollIndicator>
 
       <RequestDetailDialog
         request={detailRequest}
