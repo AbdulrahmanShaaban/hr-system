@@ -18,7 +18,7 @@
 
 | Layer | Technology |
 |-------|-----------|
-| **Backend** | Node.js + NestJS 12, TypeScript 6, Prisma ORM |
+| **Backend** | Node.js + NestJS 11, TypeScript 6, Prisma ORM |
 | **Frontend** | Next.js 16 (App Router), React, TypeScript 7, TailwindCSS |
 | **Database** | PostgreSQL 16 |
 | **Queue** | BullMQ + Redis |
