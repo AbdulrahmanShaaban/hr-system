@@ -18,7 +18,10 @@ export const metadata: Metadata = {
   title: "قَوام - نظام إدارة الموارد البشرية والرواتب",
   description: "نظام متكامل لإدارة الموظفين والرواتب والحضور والإجازات",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.svg", sizes: "32x32", type: "image/svg+xml" },
+    ],
   },
 };
 
