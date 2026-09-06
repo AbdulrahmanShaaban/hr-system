@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, Home, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api-client";
 
 const segmentLabels: Record<string, string> = {
   employees: "الموظفين",
@@ -18,23 +19,66 @@ const segmentLabels: Record<string, string> = {
   reports: "التقارير",
   approvals: "الطلبات المعلقة",
   onboarding: "التمهيد",
-  requests: "管理中心 الطلبات",
+  requests: "الطلبات",
   "my-requests": "طلباتي",
   platform: "المنصة",
   companies: "الشركات",
   plans: "خطط الاشتراك",
 };
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isUuid(s: string): boolean {
+  return UUID_RE.test(s);
+}
+
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [employeeNames, setEmployeeNames] = React.useState<
+    Record<string, string>
+  >({});
 
   const segments = pathname.split("/").filter(Boolean);
 
+  const uuidSegments = React.useMemo(
+    () => segments.filter(isUuid),
+    [segments],
+  );
+
+  React.useEffect(() => {
+    if (uuidSegments.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const results = await Promise.allSettled(
+        uuidSegments.map(async (seg) => {
+          try {
+            const data = await api.get<{ name: string }>(`/employees/${seg}`);
+            return [seg, data?.name ?? seg] as const;
+          } catch {
+            return [seg, seg] as const;
+          }
+        }),
+      );
+      if (cancelled) return;
+      const map: Record<string, string> = {};
+      for (const r of results) {
+        if (r.status === "fulfilled") map[r.value[0]] = r.value[1];
+      }
+      setEmployeeNames((prev) => ({ ...prev, ...map }));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [uuidSegments]);
+
   const breadcrumbs = segments.map((segment, index) => {
     const href = "/" + segments.slice(0, index + 1).join("/");
-    const label = segmentLabels[segment] ?? segment;
+    const label = isUuid(segment)
+      ? (employeeNames[segment] ?? "جاري التحميل...")
+      : (segmentLabels[segment] ?? segment);
     return { label, href };
   });
 

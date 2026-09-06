@@ -78,7 +78,7 @@ const navigation: NavGroup[] = [
   {
     label: "الطلبات والاعتمادات",
     items: [
-      { name: "管理中心 الطلبات", href: "/requests", icon: Inbox },
+      { name: "الطلبات", href: "/requests", icon: Inbox },
       { name: "طلباتي", href: "/my-requests", icon: FileText },
       { name: "الطلبات المعلقة", href: "/approvals", icon: FileCheck },
       { name: "التمهيد", href: "/onboarding", icon: ClipboardList },

@@ -37,7 +37,40 @@ export class EmployeeService {
       include: { department: true, role: true, shift: true, user: true },
     });
     if (!emp) throw new NotFoundException('Employee not found');
-    return emp;
+
+    const isActive = emp.status === 'ACTIVE';
+    const accountStatus =
+      emp.status === 'ON_LEAVE' ? 'ON_LEAVE' : isActive ? 'ACTIVE' : 'INACTIVE';
+
+    return {
+      id: emp.id,
+      name: `${emp.firstName} ${emp.lastName}`.trim(),
+      employeeCode: emp.employeeCode,
+      email: emp.user?.email ?? null,
+      phone: emp.phone,
+      photoUrl: emp.avatar,
+      departmentId: emp.departmentId,
+      department: emp.department?.name ?? null,
+      position: emp.position,
+      employmentType: emp.role?.name ?? 'PERMANENT',
+      salaryBasis: 'MONTHLY',
+      basicSalary: emp.basicSalary,
+      isActive,
+      isGosiRegistered: false,
+      gosiNumber: null,
+      managerId: null,
+      managerName: null,
+      jobRank: 'EMPLOYEE',
+      workLocation: 'HEADQUARTERS',
+      contractDurationYears: null,
+      accountStatus,
+      onLeave: emp.status === 'ON_LEAVE',
+      createdAt: emp.createdAt.toISOString(),
+      updatedAt: emp.updatedAt?.toISOString(),
+      hireDate: emp.hireDate?.toISOString() ?? null,
+      shiftId: emp.shiftId,
+      shift: emp.shift,
+    };
   }
 
   async create(tenantId: string, dto: CreateEmployeeDto) {

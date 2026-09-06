@@ -20,25 +20,50 @@ export class ApiError extends Error {
   }
 }
 
-// In-memory token storage — secure (not accessible to XSS via document.cookie/localStorage)
+// In-memory token storage — primary (survives same-tab SPA navigation)
+// sessionStorage backup — survives full page reloads but clears on tab close (XSS-safe)
 let accessToken: string | null = null;
 let refreshToken: string | null = null;
+
+function loadTokensFromSessionStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    const stored = sessionStorage.getItem("qawam_tokens");
+    if (stored) {
+      const parsed = JSON.parse(stored) as { access: string; refresh: string };
+      accessToken = parsed.access;
+      refreshToken = parsed.refresh;
+    }
+  } catch {}
+}
 
 export function setTokens(access: string, refresh: string) {
   accessToken = access;
   refreshToken = refresh;
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.setItem("qawam_tokens", JSON.stringify({ access, refresh }));
+    } catch {}
+  }
 }
 
 export function clearTokens() {
   accessToken = null;
   refreshToken = null;
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.removeItem("qawam_tokens");
+    } catch {}
+  }
 }
 
 export function getAccessToken(): string | null {
+  if (!accessToken) loadTokensFromSessionStorage();
   return accessToken;
 }
 
 export function getRefreshToken(): string | null {
+  if (!refreshToken) loadTokensFromSessionStorage();
   return refreshToken;
 }
 
@@ -69,9 +94,10 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     headers["Content-Type"] = "application/json";
   }
 
-  // Send access token via Authorization header (in-memory, not localStorage)
-  if (accessToken) {
-    headers["Authorization"] = `Bearer ${accessToken}`;
+  // Send access token via Authorization header (in-memory + sessionStorage backup)
+  const token = getAccessToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   // CSRF protection: include token header on state-changing requests
@@ -89,6 +115,20 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: "حدث خطأ ما" }));
+
+    // Global 401 handler — redirect to login (in-memory token lost on refresh)
+    // Don't redirect if already on login/forgot-password/reset-password pages
+    if (response.status === 401 && typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const isAuthPage = path.startsWith("/login") || path.startsWith("/forgot-password") || path.startsWith("/reset-password");
+      if (!isAuthPage) {
+        clearTokens();
+        const loginUrl = new URL("/login", window.location.origin);
+        loginUrl.searchParams.set("redirect", path);
+        window.location.href = loginUrl.toString();
+      }
+    }
+
     throw new ApiError(error.message || `HTTP error ${response.status}`, response.status);
   }
 

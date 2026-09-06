@@ -156,7 +156,7 @@ export function RequestsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">管理中心 الطلبات</h1>
+        <h1 className="text-2xl font-bold text-foreground">الطلبات</h1>
         <p className="text-sm text-muted-foreground mt-1">
           مراجعة طلبات العمل الإضافي والطلبات العامة (مستويان: مدير ثم موارد
           بشرية).
