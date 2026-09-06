@@ -43,17 +43,22 @@ export function SiteHeader() {
 
   const segments = pathname.split("/").filter(Boolean);
 
-  const uuidSegments = React.useMemo(
-    () => segments.filter(isUuid),
-    [segments],
-  );
+  const employeeUuidSegments = React.useMemo(() => {
+    const result: string[] = [];
+    for (let i = 0; i < segments.length; i++) {
+      if (isUuid(segments[i]) && i > 0 && segments[i - 1] === "employees") {
+        result.push(segments[i]);
+      }
+    }
+    return result;
+  }, [segments]);
 
   React.useEffect(() => {
-    if (uuidSegments.length === 0) return;
+    if (employeeUuidSegments.length === 0) return;
     let cancelled = false;
     (async () => {
       const results = await Promise.allSettled(
-        uuidSegments.map(async (seg) => {
+        employeeUuidSegments.map(async (seg) => {
           try {
             const data = await api.get<{ name: string }>(`/employees/${seg}`);
             return [seg, data?.name ?? seg] as const;
@@ -72,7 +77,7 @@ export function SiteHeader() {
     return () => {
       cancelled = true;
     };
-  }, [uuidSegments]);
+  }, [employeeUuidSegments]);
 
   const breadcrumbs = segments.map((segment, index) => {
     const href = "/" + segments.slice(0, index + 1).join("/");
@@ -93,7 +98,7 @@ export function SiteHeader() {
 
   return (
     <div className="flex items-center justify-between gap-4 pb-4">
-      <nav className="flex items-center gap-1 text-sm" aria-label="أرشيف">
+      <nav className="flex items-center gap-1 text-sm" aria-label="تنقل">
         <Link
           href="/"
           className={cn(
@@ -134,6 +139,7 @@ export function SiteHeader() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="بحث..."
+          aria-label="بحث"
           className="h-9 w-48 rounded-lg border border-border bg-card ps-9 pe-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 lg:w-64"
         />
       </form>

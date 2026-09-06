@@ -31,12 +31,35 @@ export class EmployeeService {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, tenantId?: string) {
+    const where: Prisma.EmployeeWhereUniqueInput = { id };
     const emp = await this.prisma.employee.findUnique({
-      where: { id },
-      include: { department: true, role: true, shift: true, user: true },
+      where,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        employeeCode: true,
+        phone: true,
+        avatar: true,
+        departmentId: true,
+        position: true,
+        basicSalary: true,
+        status: true,
+        hireDate: true,
+        terminationDate: true,
+        shiftId: true,
+        createdAt: true,
+        updatedAt: true,
+        tenantId: true,
+        department: { select: { id: true, name: true } },
+        role: { select: { id: true, name: true } },
+        shift: { select: { id: true, name: true, startTime: true, endTime: true } },
+        user: { select: { email: true } },
+      },
     });
     if (!emp) throw new NotFoundException('Employee not found');
+    if (tenantId && emp.tenantId !== tenantId) throw new NotFoundException('Employee not found');
 
     const isActive = emp.status === 'ACTIVE';
     const accountStatus =
@@ -95,13 +118,13 @@ export class EmployeeService {
     return this.prisma.employee.create({ data, include: { department: true, role: true, shift: true } });
   }
 
-  async update(id: string, data: Prisma.EmployeeUpdateInput) {
-    await this.findOne(id);
+  async update(id: string, data: Prisma.EmployeeUpdateInput, tenantId?: string) {
+    await this.findOne(id, tenantId);
     return this.prisma.employee.update({ where: { id }, data });
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, tenantId?: string) {
+    await this.findOne(id, tenantId);
     return this.prisma.employee.delete({ where: { id } });
   }
 }

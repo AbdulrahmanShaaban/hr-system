@@ -204,38 +204,40 @@ export default function EmployeeProfilePage() {
             onToggleStatus={() => void patchActive(!employee.isActive)}
             onTerminate={() => setTerminateOpen(true)}
             footer={
-              <TabsList className="h-auto w-fit justify-start gap-5 rounded-none bg-transparent p-0">
-                <TabsTrigger
-                  value="overview"
-                  className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                >
-                  نبذة عامة
-                </TabsTrigger>
-                <TabsTrigger
-                  value="employment"
-                  className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                >
-                  التوظيف
-                </TabsTrigger>
-                <TabsTrigger
-                  value="salaries"
-                  className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                >
-                  الرواتب
-                </TabsTrigger>
-                <TabsTrigger
-                  value="attendance"
-                  className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                >
-                  الحضور
-                </TabsTrigger>
-                <TabsTrigger
-                  value="leaves"
-                  className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                >
-                  الإجازات
-                </TabsTrigger>
-              </TabsList>
+              <div className="overflow-x-auto">
+                <TabsList className="h-auto w-fit min-w-full justify-start gap-5 rounded-none bg-transparent p-0">
+                  <TabsTrigger
+                    value="overview"
+                    className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+                  >
+                    نبذة عامة
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="employment"
+                    className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+                  >
+                    التوظيف
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="salaries"
+                    className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+                  >
+                    الرواتب
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="attendance"
+                    className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+                  >
+                    الحضور
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="leaves"
+                    className="flex-none rounded-none px-0 pb-3 text-muted-foreground data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+                  >
+                    الإجازات
+                  </TabsTrigger>
+                </TabsList>
+              </div>
             }
           />
 

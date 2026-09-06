@@ -116,8 +116,8 @@ export const ACCOUNT_STATUS_UI: Record<
   },
   ON_LEAVE: {
     label: "في إجازة",
-    className: "bg-orange-100 text-orange-700 border-transparent",
-    dot: "bg-orange-500",
+    className: "bg-warning/10 text-warning border-transparent",
+    dot: "bg-warning",
   },
   INACTIVE: {
     label: "غير نشط",

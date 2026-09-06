@@ -34,9 +34,10 @@ model Tenant {
   documents       Document[]
   notifications   Notification[]
   auditLogs       AuditLog[]
-  approvalConfigs ApprovalConfig[]
+  approvalConfigs    ApprovalConfig[]
   onboardingTemplates OnboardingTemplate[]
   reports            Report[]
+  userRequests       UserRequest[]
 
   @@map("tenants")
 }
@@ -89,6 +90,7 @@ model Employee {
   notifications    Notification[]
   onboardingSteps  OnboardingStep[]
   approvalActions  ApprovalAction[]
+  userRequests     UserRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -628,4 +630,41 @@ enum ReportStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+// ─── User Requests ─────────────────────────────────────
+
+model UserRequest {
+  id            String        @id @default(uuid())
+  tenantId      String
+  employeeId    String
+  type          String        // OVERTIME, GENERAL
+  title         String?
+  reason        String?
+  date          DateTime?
+  hours         Decimal?      @db.Decimal(5, 2)
+  status        RequestStatus @default(PENDING)
+  approvalLevel Int           @default(1)
+  reviewNote    String?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("user_requests")
+}
+
+enum RequestStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
 }

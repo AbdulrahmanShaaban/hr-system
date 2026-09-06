@@ -21,12 +21,13 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.employeeService.findOne(id);
+  async findOne(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    return this.employeeService.findOne(id, tenantId);
   }
 
   @Get(':id/leaves')
-  async findLeaves(@Param('id') id: string) {
+  async findLeaves(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    await this.employeeService.findOne(id, tenantId);
     const leaves = await this.leaveService.findByEmployee(id);
     return leaves.map((l) => ({
       id: l.id,
@@ -40,7 +41,8 @@ export class EmployeeController {
   }
 
   @Get(':id/payroll-slips')
-  async findPayrollSlips(@Param('id') id: string) {
+  async findPayrollSlips(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    await this.employeeService.findOne(id, tenantId);
     const slips = await this.prisma.payslip.findMany({
       where: { employeeId: id },
       include: { payrollCycle: true },
@@ -68,16 +70,17 @@ export class EmployeeController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: Record<string, unknown>) {
-    return this.updateEmployee(id, body);
+  async update(@CurrentTenant() tenantId: string, @Param('id') id: string, @Body() body: Record<string, unknown>) {
+    return this.updateEmployee(tenantId, id, body);
   }
 
   @Patch(':id')
-  async patch(@Param('id') id: string, @Body() body: Record<string, unknown>) {
-    return this.updateEmployee(id, body);
+  async patch(@CurrentTenant() tenantId: string, @Param('id') id: string, @Body() body: Record<string, unknown>) {
+    return this.updateEmployee(tenantId, id, body);
   }
 
-  private async updateEmployee(id: string, body: Record<string, unknown>) {
+  private async updateEmployee(tenantId: string, id: string, body: Record<string, unknown>) {
+    const ALLOWED_STATUS = ['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'SUSPENDED'] as const;
     const data: Prisma.EmployeeUpdateInput = {};
     if (typeof body.firstName === 'string') data.firstName = body.firstName;
     if (typeof body.lastName === 'string') data.lastName = body.lastName;
@@ -92,17 +95,17 @@ export class EmployeeController {
     if (typeof body.hireDate === 'string') data.hireDate = new Date(body.hireDate);
     if (typeof body.terminationDate === 'string') data.terminationDate = new Date(body.terminationDate);
     if (body.isActive !== undefined) {
-      data.status = body.isActive ? 'ACTIVE' : 'SUSPENDED';
-    } else if (typeof body.status === 'string') {
-      data.status = body.status as 'ACTIVE' | 'ON_LEAVE' | 'TERMINATED' | 'SUSPENDED';
+      data.status = body.isActive ? 'ACTIVE' : 'INACTIVE';
+    } else if (typeof body.status === 'string' && ALLOWED_STATUS.includes(body.status as typeof ALLOWED_STATUS[number])) {
+      data.status = body.status as typeof ALLOWED_STATUS[number];
     }
 
-    await this.employeeService.findOne(id);
+    await this.employeeService.findOne(id, tenantId);
     return this.prisma.employee.update({ where: { id }, data });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.employeeService.remove(id);
+  remove(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    return this.employeeService.remove(id, tenantId);
   }
 }

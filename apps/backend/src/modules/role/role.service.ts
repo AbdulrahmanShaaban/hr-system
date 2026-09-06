@@ -60,4 +60,62 @@ export class RoleService {
     await this.prisma.rolePermission.deleteMany({ where: { roleId: id } });
     return this.prisma.role.delete({ where: { id } });
   }
+
+  async findAllPermissions() {
+    return this.prisma.permission.findMany({
+      select: { id: true, name: true, code: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findRoleUsers(roleId: string) {
+    await this.findOne(roleId);
+    const employees = await this.prisma.employee.findMany({
+      where: { roleId },
+      include: {
+        user: { select: { id: true, email: true } },
+        department: { select: { name: true } },
+        role: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return employees.map((emp) => ({
+      id: emp.user?.id ?? emp.id,
+      email: emp.user?.email ?? '',
+      fullName: `${emp.firstName} ${emp.lastName}`.trim(),
+      employeeCode: emp.employeeCode,
+      department: emp.department?.name ?? null,
+      photoUrl: emp.avatar ?? null,
+      assignedAt: emp.createdAt.toISOString(),
+      roleName: emp.role?.name ?? null,
+    }));
+  }
+
+  async findAllUsers(tenantId: string) {
+    const employees = await this.prisma.employee.findMany({
+      where: { tenantId, userId: { not: null } },
+      include: {
+        user: { select: { id: true, email: true } },
+        role: { select: { name: true } },
+      },
+      orderBy: { firstName: 'asc' },
+    });
+
+    return employees.map((emp) => ({
+      id: emp.user?.id ?? emp.id,
+      email: emp.user?.email ?? '',
+      fullName: `${emp.firstName} ${emp.lastName}`.trim(),
+      roleName: emp.role?.name ?? null,
+    }));
+  }
+
+  async unassignUsers(roleId: string, userIds: string[]) {
+    await this.findOne(roleId);
+    await this.prisma.employee.updateMany({
+      where: { roleId, userId: { in: userIds } },
+      data: { roleId: null },
+    });
+    return { success: true };
+  }
 }

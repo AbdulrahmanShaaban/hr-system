@@ -72,16 +72,15 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('Qawam HR & Payroll API')
-    .setDescription('Qawam HR & Payroll System - Backend API')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-
   // Only expose Swagger UI in development — never in production
   if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('Qawam HR & Payroll API')
+      .setDescription('Qawam HR & Payroll System - Backend API')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, document);
   }
 

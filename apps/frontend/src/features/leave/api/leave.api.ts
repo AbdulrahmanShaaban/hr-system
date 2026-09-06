@@ -3,13 +3,13 @@ import type { LeaveRequest, LeaveType, CreateLeavePayload } from "../types/leave
 
 export const leaveApi = {
   getRequests: (params?: Record<string, string>) =>
-    api.get<{ data: LeaveRequest[]; total: number }>("/leave/requests", { params }),
+    api.get<{ data: LeaveRequest[]; total: number }>("/leaves", { params }),
 
-  getTypes: () => api.get<LeaveType[]>("/leave/types"),
+  getTypes: () => api.get<LeaveType[]>("/leaves/types"),
 
   createRequest: (payload: CreateLeavePayload) =>
-    api.post<LeaveRequest>("/leave/requests", payload),
+    api.post<LeaveRequest>("/leaves", payload),
 
   updateStatus: (id: string, status: string) =>
-    api.patch<LeaveRequest>(`/leave/requests/${id}`, { status }),
+    api.patch<LeaveRequest>(`/leaves/${id}`, { status }),
 };

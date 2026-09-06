@@ -30,9 +30,8 @@ function loadTokensFromSessionStorage() {
   try {
     const stored = sessionStorage.getItem("qawam_tokens");
     if (stored) {
-      const parsed = JSON.parse(stored) as { access: string; refresh: string };
+      const parsed = JSON.parse(stored) as { access: string };
       accessToken = parsed.access;
-      refreshToken = parsed.refresh;
     }
   } catch {}
 }
@@ -40,9 +39,10 @@ function loadTokensFromSessionStorage() {
 export function setTokens(access: string, refresh: string) {
   accessToken = access;
   refreshToken = refresh;
+  // Only store access token in sessionStorage — refresh token stays in-memory only
   if (typeof window !== "undefined") {
     try {
-      sessionStorage.setItem("qawam_tokens", JSON.stringify({ access, refresh }));
+      sessionStorage.setItem("qawam_tokens", JSON.stringify({ access }));
     } catch {}
   }
 }

@@ -63,7 +63,7 @@ export function EmployeeProfileHeader({
   return (
     <div className="rounded-2xl border border-border/80 bg-card shadow-[0_1px_3px_rgb(0,0,0,0.04)]">
       <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
+        <div className="flex min-w-0 flex-1 items-start gap-4">
           <Avatar className="h-16 w-16 bg-primary/10 sm:h-20 sm:w-20">
             {employee.photoUrl ? (
               <AvatarImage src={employee.photoUrl} alt={employee.name} />

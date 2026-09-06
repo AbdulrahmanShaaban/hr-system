@@ -29,6 +29,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { ReportModule } from './modules/report/report.module';
 import { SearchModule } from './modules/search/search.module';
+import { RequestModule } from './modules/request/request.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { SearchModule } from './modules/search/search.module';
     OnboardingModule,
     ReportModule,
     SearchModule,
+    RequestModule,
   ],
   controllers: [AppController],
   providers: [
