@@ -660,11 +660,7 @@ export default function RoleDetailPage() {
                       }}
                     >
                       <SelectTrigger className="h-9! w-full rounded-lg sm:w-44">
-                        <SelectValue>
-                          {(value: string | null) =>
-                            !value || value === "ALL" ? "جميع الأقسام" : value
-                          }
-                        </SelectValue>
+                        <SelectValue placeholder="جميع الأقسام" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ALL">جميع الأقسام</SelectItem>

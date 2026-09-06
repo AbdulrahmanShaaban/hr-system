@@ -66,7 +66,7 @@ export const TYPE_AR: Record<RequestType, string> = {
   GENERAL: "طلب عام",
 };
 
-export const STATUS_BADGE_VARIANT: Record<RequestStatus, string> = {
+export const STATUS_BADGE_VARIANT: Record<RequestStatus, "default" | "success" | "warning" | "danger" | "info"> = {
   APPROVED: "success",
   PENDING: "warning",
   IN_REVIEW: "info",

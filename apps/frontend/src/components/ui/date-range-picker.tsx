@@ -71,7 +71,6 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
             selected={value}
             onSelect={onChange}
             numberOfMonths={2}
-            initialFocus
           />
         </PopoverContent>
       </Popover>

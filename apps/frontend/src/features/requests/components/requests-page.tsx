@@ -169,13 +169,7 @@ export function RequestsPage() {
           onValueChange={(v) => v && setStatus(v as RequestStatus | "ALL")}
         >
           <SelectTrigger className="h-9 w-48">
-            <SelectValue>
-              {(v: string | null) =>
-                !v || v === "ALL"
-                  ? "كل الحالات"
-                  : (STATUS_AR[v as RequestStatus] ?? v)
-              }
-            </SelectValue>
+            <SelectValue placeholder="كل الحالات" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">كل الحالات</SelectItem>
@@ -188,11 +182,7 @@ export function RequestsPage() {
 
         <Select value={type} onValueChange={(v) => v && setType(v)}>
           <SelectTrigger className="h-9 w-40">
-            <SelectValue>
-              {(v: string | null) =>
-                !v || v === "ALL" ? "كل الأنواع" : (TYPE_AR[v as keyof typeof TYPE_AR] ?? v)
-              }
-            </SelectValue>
+            <SelectValue placeholder="كل الأنواع" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">كل الأنواع</SelectItem>

@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+const rawBackendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const backendOrigin = (() => {
+  try { return new URL(rawBackendUrl).origin; } catch { return rawBackendUrl; }
+})();
+
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
@@ -9,7 +14,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",
-      "connect-src 'self'",
+      `connect-src 'self' ${backendOrigin}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

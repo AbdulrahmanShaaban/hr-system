@@ -4,7 +4,7 @@ function normalizeApiUrl(url: string): string {
 }
 
 const API_BASE_URL = normalizeApiUrl(
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1"
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
 );
 
 interface RequestOptions extends RequestInit {
@@ -20,22 +20,26 @@ export class ApiError extends Error {
   }
 }
 
-export function setTokens(_accessToken: string, _refreshToken: string) {
-  // Tokens are stored as HttpOnly cookies set by the backend.
-  // We do NOT write to localStorage or document.cookie for security.
-  // This function exists for API compatibility — the backend sets
-  // the cookies via Set-Cookie response headers on /auth/login.
-  // A short-lived non-sensitive token can be stored in memory for
-  // optimistic UI gating if needed.
+// In-memory token storage — secure (not accessible to XSS via document.cookie/localStorage)
+let accessToken: string | null = null;
+let refreshToken: string | null = null;
+
+export function setTokens(access: string, refresh: string) {
+  accessToken = access;
+  refreshToken = refresh;
 }
 
 export function clearTokens() {
-  // Cookies are cleared by the backend on /auth/logout.
-  // We clear any client-side session state here.
-  if (typeof window !== "undefined") {
-    // Clear the auth query cache
-    window.dispatchEvent(new Event("auth:logout"));
-  }
+  accessToken = null;
+  refreshToken = null;
+}
+
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
+export function getRefreshToken(): string | null {
+  return refreshToken;
 }
 
 function getCsrfToken(): string | null {
@@ -58,12 +62,16 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     ...(fetchOptions.headers as Record<string, string>),
   };
 
-  // Credentials: "include" ensures HttpOnly cookies are sent with every request
   const isFormData =
     typeof FormData !== "undefined" && fetchOptions.body instanceof FormData;
 
   if (method !== "GET" && !isFormData) {
     headers["Content-Type"] = "application/json";
+  }
+
+  // Send access token via Authorization header (in-memory, not localStorage)
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
   // CSRF protection: include token header on state-changing requests
@@ -76,7 +84,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     ...fetchOptions,
     method,
     headers,
-    credentials: "include", // Send HttpOnly cookies
+    credentials: "include",
   });
 
   if (!response.ok) {

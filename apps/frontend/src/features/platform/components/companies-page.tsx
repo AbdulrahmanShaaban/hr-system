@@ -144,13 +144,7 @@ export function CompaniesPage() {
           }}
         >
           <SelectTrigger className="h-9! w-full rounded-lg sm:w-40">
-            <SelectValue>
-              {(v: string | null) =>
-                !v || v === "ALL"
-                  ? "كل الحالات"
-                  : (STATUS_AR[v as SubscriptionStatus] ?? v)
-              }
-            </SelectValue>
+            <SelectValue placeholder="كل الحالات" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">كل الحالات</SelectItem>

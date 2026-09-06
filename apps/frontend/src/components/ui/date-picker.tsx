@@ -61,7 +61,6 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
               onChange?.(date);
               setOpen(false);
             }}
-            initialFocus
           />
         </PopoverContent>
       </Popover>

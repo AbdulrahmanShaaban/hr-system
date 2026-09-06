@@ -117,13 +117,7 @@ export function MyRequestsPage() {
           onValueChange={(v) => v && setStatus(v as RequestStatus | "ALL")}
         >
           <SelectTrigger className="h-9 w-48">
-            <SelectValue>
-              {(v: string | null) =>
-                !v || v === "ALL"
-                  ? "كل الحالات"
-                  : (STATUS_AR[v as RequestStatus] ?? v)
-              }
-            </SelectValue>
+            <SelectValue placeholder="كل الحالات" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">كل الحالات</SelectItem>
