@@ -51,3 +51,5 @@ apps/backend/generated/prisma
 
 # Playwright MCP
 .playwright-mcp
+.vercel
+.env*

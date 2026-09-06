@@ -1,0 +1,4 @@
+# Exclude config files from GitHub language stats
+*.js linguist-vendored
+*.mjs linguist-vendored
+*.cjs linguist-vendored

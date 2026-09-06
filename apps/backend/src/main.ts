@@ -2,10 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
 import { AppModule } from './app.module';
 
+const expressApp = express();
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   app.use(helmet());
   app.setGlobalPrefix('api/v1');
@@ -39,9 +43,20 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.PORT || 4000;
-  await app.listen(port);
-  console.log(`Qawam Backend running on: http://localhost:${port}`);
-  console.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  await app.init();
+
+  if (!process.env.VERCEL) {
+    const port = process.env.PORT || 4000;
+    await app.listen(port);
+    console.log(`Qawam Backend running on: http://localhost:${port}`);
+    console.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  }
 }
-bootstrap();
+
+const appReady = bootstrap();
+
+if (process.env.VERCEL) {
+  module.exports = appReady.then(() => expressApp);
+} else {
+  appReady.catch(console.error);
+}
