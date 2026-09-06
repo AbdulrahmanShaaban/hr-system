@@ -335,7 +335,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
   };
 
   return (
-    <div className="flex min-h-dvh bg-background">
+    <div className="flex min-h-dvh overflow-x-hidden bg-background">
       <Sidebar open={sidebarOpen} onClose={handleClose} />
 
       <div className="flex flex-1 flex-col min-w-0">

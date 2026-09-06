@@ -6,6 +6,7 @@ import { Plus, Search, Download, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -17,14 +18,6 @@ import { EmployeeTable } from "./employee-table";
 import { EmployeeForm } from "./employee-form";
 import { useEmployees, useCreateEmployee } from "../hooks/use-employees";
 import type { CreateEmployeePayload } from "../types/employee.types";
-
-const placeholderEmployees = [
-  { id: "1", firstName: "أحمد", lastName: "حسن", email: "ahmed@qawam.com", position: "مهندس برمجيات", department: "الهندسة", status: "active" as const, joinDate: "2023-01-15" },
-  { id: "2", firstName: "سارة", lastName: "علي", email: "sara@qawam.com", position: "مديرة الموارد البشرية", department: "الموارد البشرية", status: "active" as const, joinDate: "2022-06-01" },
-  { id: "3", firstName: "محمد", lastName: "خالد", email: "mohamed@qawam.com", position: "محاسب", department: "المالية", status: "on-leave" as const, joinDate: "2023-03-10" },
-  { id: "4", firstName: "فاطمة", lastName: "عمر", email: "fatma@qawam.com", position: "مصممة", department: "التصميم", status: "active" as const, joinDate: "2023-08-20" },
-  { id: "5", firstName: "يوسف", lastName: "إبراهيم", email: "youssef@qawam.com", position: "مسيّر بنية تحتية", department: "الهندسة", status: "inactive" as const, joinDate: "2021-11-05" },
-];
 
 const statusOptions = [
   { value: "all", label: "جميع الحالات" },
@@ -68,10 +61,13 @@ export function EmployeesPage() {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [formOpen, setFormOpen] = useState(false);
 
-  const { data } = useEmployees({ search });
+  const { data, isLoading } = useEmployees({ search });
   const createEmployee = useCreateEmployee();
 
-  const employees = data?.data || placeholderEmployees;
+  const employees = useMemo(() => {
+    if (isLoading) return [];
+    return data?.data ?? [];
+  }, [data, isLoading]);
 
   const handleCreate = (data: Record<string, string>) => {
     createEmployee.mutate({
@@ -131,7 +127,7 @@ export function EmployeesPage() {
 
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>جميع الموظفين ({filteredEmployees.length})</CardTitle>
+          <CardTitle>جميع الموظفين ({isLoading ? "..." : filteredEmployees.length})</CardTitle>
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="relative w-full sm:w-72">
               <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -169,7 +165,21 @@ export function EmployeesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <EmployeeTable data={filteredEmployees} />
+          {isLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmployeeTable data={filteredEmployees} />
+          )}
         </CardContent>
       </Card>
 

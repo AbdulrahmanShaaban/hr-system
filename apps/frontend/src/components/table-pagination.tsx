@@ -32,7 +32,7 @@ export type TablePaginationProps = {
 }
 
 function pageWindow(page: number, pageCount: number): number[] {
-  if (pageCount <= 0) return []
+  if (!Number.isFinite(pageCount) || pageCount <= 0) return []
   if (pageCount <= 5) {
     return Array.from({ length: pageCount }, (_, i) => i + 1)
   }
@@ -52,10 +52,10 @@ export function TablePagination({
   className,
   showingLabel,
 }: TablePaginationProps) {
-  if (meta.pageCount <= 0 && meta.itemCount <= 0) return null
+  if (!meta || meta.pageCount <= 0 && meta.itemCount <= 0) return null
 
-  const pages = pageWindow(page, meta.pageCount)
-  const shown = shownCount ?? Math.min(limit, meta.itemCount)
+  const pages = pageWindow(page, meta.pageCount ?? 0)
+  const shown = shownCount ?? Math.min(limit, meta.itemCount ?? 0)
 
   return (
     <div
