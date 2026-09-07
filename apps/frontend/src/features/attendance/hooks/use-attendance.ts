@@ -15,7 +15,7 @@ export function useClockIn() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (employeeId: string) => attendanceApi.clockIn(employeeId),
+    mutationFn: (notes?: string) => attendanceApi.clockIn(notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendance"] });
     },
@@ -26,7 +26,7 @@ export function useClockOut() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (employeeId: string) => attendanceApi.clockOut(employeeId),
+    mutationFn: (notes?: string) => attendanceApi.clockOut(notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendance"] });
     },

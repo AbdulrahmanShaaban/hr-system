@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -97,16 +97,49 @@ export class EmployeeService {
   }
 
   async create(tenantId: string, dto: CreateEmployeeDto) {
+    // Resolve first/last name: DTO accepts either the pair or a single `name`.
+    let firstName = dto.firstName?.trim();
+    let lastName = dto.lastName?.trim();
+    if ((!firstName || !lastName) && dto.name?.trim()) {
+      const parts = dto.name.trim().split(/\s+/);
+      firstName = firstName || parts[0];
+      lastName = lastName || parts.slice(1).join(' ') || parts[0];
+    }
+    if (!firstName || !lastName) {
+      throw new BadRequestException('firstName and lastName (or name) are required');
+    }
+
+    const hireDateRaw = dto.hireDate ?? dto.joinDate;
+    if (!hireDateRaw) {
+      throw new BadRequestException('hireDate is required');
+    }
+    if (dto.basicSalary === undefined || dto.basicSalary === null) {
+      throw new BadRequestException('basicSalary is required');
+    }
+
+    // Auto-generate a unique-per-tenant code when the client doesn't send one
+    // (the wizard relies on server-side assignment).
+    const employeeCode =
+      dto.employeeCode?.trim() ||
+      `EMP-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 1296)
+        .toString(36)
+        .toUpperCase()
+        .padStart(2, '0')}`;
+
+    // Frontend "INACTIVE" alias has no Prisma enum member → map to SUSPENDED.
+    const rawStatus = dto.status?.toUpperCase().replace('-', '_');
+    const status = (rawStatus === 'INACTIVE' ? 'SUSPENDED' : rawStatus) as never;
+
     const data: Prisma.EmployeeCreateInput = {
       tenant: { connect: { id: tenantId } },
-      employeeCode: dto.employeeCode,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
+      employeeCode,
+      firstName,
+      lastName,
       phone: dto.phone,
-      avatar: dto.avatar,
-      hireDate: new Date(dto.hireDate),
+      avatar: dto.avatar ?? dto.photoUrl,
+      hireDate: new Date(hireDateRaw),
       terminationDate: dto.terminationDate ? new Date(dto.terminationDate) : undefined,
-      status: dto.status as never,
+      status,
       position: dto.position,
       basicSalary: dto.basicSalary,
     };

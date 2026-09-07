@@ -384,14 +384,14 @@ describe('EmployeeController', () => {
       expect(callData.status).toBe('ACTIVE');
     });
 
-    it('should map isActive=false to INACTIVE status', async () => {
+    it('should map isActive=false to SUSPENDED status (INACTIVE is UI-only, not a Prisma enum member)', async () => {
       mockEmployeeService.findOne.mockResolvedValue({ id: 'emp-1', tenantId });
       mockPrisma.employee.update.mockResolvedValue({ id: 'emp-1' });
 
       await controller.update(tenantId, 'emp-1', { isActive: false } as any);
 
       const callData = mockPrisma.employee.update.mock.calls[0][0].data;
-      expect(callData.status).toBe('INACTIVE');
+      expect(callData.status).toBe('SUSPENDED');
     });
 
     it('should ignore unknown fields in body', async () => {

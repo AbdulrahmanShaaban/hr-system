@@ -17,7 +17,9 @@ export class ValidationPipe implements PipeTransform<unknown> {
     const object = plainToInstance(metatype, value);
     const errors = await validate(object, {
       whitelist: true,
-      forbidNonWhitelisted: true,
+      // Aligned with main.ts / api/index.js: strip unknown props (wizard
+      // payloads, filter params) instead of throwing 400.
+      forbidNonWhitelisted: false,
       transform: true,
     });
 

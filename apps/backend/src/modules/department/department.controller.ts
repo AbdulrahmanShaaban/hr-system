@@ -2,7 +2,8 @@ import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/
 import { DepartmentService } from './department.service';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { Prisma } from '@prisma/client';
+import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
 
 @Controller('departments')
 export class DepartmentController {
@@ -19,13 +20,13 @@ export class DepartmentController {
   }
 
   @Post()
-  create(@CurrentTenant() tenantId: string, @Body() data: Prisma.DepartmentCreateInput) {
-    return this.departmentService.create({ ...data, tenant: { connect: { id: tenantId } } });
+  create(@CurrentTenant() tenantId: string, @Body() dto: CreateDepartmentDto) {
+    return this.departmentService.create(tenantId, dto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: Prisma.DepartmentUpdateInput) {
-    return this.departmentService.update(id, data);
+  update(@Param('id') id: string, @Body() dto: UpdateDepartmentDto) {
+    return this.departmentService.update(id, dto);
   }
 
   @Delete(':id')

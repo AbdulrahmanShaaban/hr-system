@@ -95,7 +95,9 @@ export class EmployeeController {
     if (typeof body.hireDate === 'string') data.hireDate = new Date(body.hireDate);
     if (typeof body.terminationDate === 'string') data.terminationDate = new Date(body.terminationDate);
     if (body.isActive !== undefined) {
-      data.status = body.isActive ? 'ACTIVE' : 'INACTIVE';
+      // NOTE: Prisma EmployeeStatus has no INACTIVE member; the UI-only
+      // "inactive" state maps to SUSPENDED (reversible, unlike TERMINATED).
+      data.status = body.isActive ? 'ACTIVE' : 'SUSPENDED';
     } else if (typeof body.status === 'string' && ALLOWED_STATUS.includes(body.status as typeof ALLOWED_STATUS[number])) {
       data.status = body.status as typeof ALLOWED_STATUS[number];
     }

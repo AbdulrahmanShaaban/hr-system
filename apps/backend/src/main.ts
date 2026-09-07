@@ -64,7 +64,11 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
+      // Strip unknown properties instead of throwing 400. The frontend sends
+      // richer payloads (wizard forms, filter params) than the DTOs declare,
+      // and several controllers historically typed @Body() as Prisma inputs
+      // (zero decorators) which would reject every property when this is true.
+      forbidNonWhitelisted: false,
       transform: true,
       transformOptions: {
         enableImplicitConversion: true,

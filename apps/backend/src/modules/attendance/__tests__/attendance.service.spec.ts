@@ -5,7 +5,7 @@ import { BadRequestException } from '@nestjs/common';
 
 const mockPrisma = {
   employee: {
-    findUniqueOrThrow: jest.fn(),
+    findUnique: jest.fn(),
   },
   attendance: {
     findUnique: jest.fn(),
@@ -43,7 +43,7 @@ describe('AttendanceService', () => {
     };
 
     it('should create attendance record on first clock-in', async () => {
-      mockPrisma.employee.findUniqueOrThrow.mockResolvedValue(mockEmployee);
+      mockPrisma.employee.findUnique.mockResolvedValue(mockEmployee);
       mockPrisma.attendance.findUnique.mockResolvedValue(null);
       mockPrisma.attendance.create.mockResolvedValue({
         id: 'att-1',
@@ -58,7 +58,7 @@ describe('AttendanceService', () => {
     });
 
     it('should not allow clocking in twice same day', async () => {
-      mockPrisma.employee.findUniqueOrThrow.mockResolvedValue(mockEmployee);
+      mockPrisma.employee.findUnique.mockResolvedValue(mockEmployee);
       mockPrisma.attendance.findUnique.mockResolvedValue({
         id: 'att-1',
         employeeId: 'emp-1',
@@ -70,7 +70,7 @@ describe('AttendanceService', () => {
     });
 
     it('should set status to LATE if past grace period', async () => {
-      mockPrisma.employee.findUniqueOrThrow.mockResolvedValue({
+      mockPrisma.employee.findUnique.mockResolvedValue({
         ...mockEmployee,
         shift: { startTime: '09:00', endTime: '17:00', gracePeriodMinutes: 15 },
       });
@@ -88,7 +88,7 @@ describe('AttendanceService', () => {
     });
 
     it('should calculate minutesLate from shift start', async () => {
-      mockPrisma.employee.findUniqueOrThrow.mockResolvedValue({
+      mockPrisma.employee.findUnique.mockResolvedValue({
         ...mockEmployee,
         shift: { startTime: '09:00', endTime: '17:00', gracePeriodMinutes: 0 },
       });
@@ -102,7 +102,7 @@ describe('AttendanceService', () => {
     });
 
     it('should handle employee with no shift', async () => {
-      mockPrisma.employee.findUniqueOrThrow.mockResolvedValue({
+      mockPrisma.employee.findUnique.mockResolvedValue({
         ...mockEmployee,
         shift: null,
       });
@@ -118,7 +118,7 @@ describe('AttendanceService', () => {
     });
 
     it('should update existing record if no clock-in yet', async () => {
-      mockPrisma.employee.findUniqueOrThrow.mockResolvedValue(mockEmployee);
+      mockPrisma.employee.findUnique.mockResolvedValue(mockEmployee);
       mockPrisma.attendance.findUnique.mockResolvedValue({
         id: 'att-1',
         employeeId: 'emp-1',

@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
 
 @Injectable()
 export class DepartmentService {
@@ -35,13 +37,49 @@ export class DepartmentService {
     return dept;
   }
 
-  async create(data: Prisma.DepartmentCreateInput) {
-    return this.prisma.department.create({ data });
+  async create(tenantId: string, dto: CreateDepartmentDto) {
+    const data: Prisma.DepartmentCreateInput = {
+      name: dto.name.trim(),
+      tenant: { connect: { id: tenantId } },
+    };
+    if (dto.parentId) {
+      data.parent = { connect: { id: dto.parentId } };
+    }
+    try {
+      return await this.prisma.department.create({ data });
+    } catch (err: unknown) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('Department with this name already exists');
+      }
+      throw err;
+    }
   }
 
-  async update(id: string, data: Prisma.DepartmentUpdateInput) {
+  async update(id: string, dto: UpdateDepartmentDto) {
     await this.findOne(id);
-    return this.prisma.department.update({ where: { id }, data });
+    const data: Prisma.DepartmentUpdateInput = {};
+    if (dto.name !== undefined) data.name = dto.name.trim();
+    if (dto.parentId !== undefined) {
+      data.parent = dto.parentId ? { connect: { id: dto.parentId } } : { disconnect: true };
+    }
+    try {
+      return await this.prisma.department.update({ where: { id }, data });
+    } catch (err: unknown) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in err &&
+        (err as { code: string }).code === 'P2002'
+      ) {
+        throw new ConflictException('Department with this name already exists');
+      }
+      throw err;
+    }
   }
 
   async remove(id: string) {

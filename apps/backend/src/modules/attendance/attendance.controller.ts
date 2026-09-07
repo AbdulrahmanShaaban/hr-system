@@ -7,26 +7,45 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
-import { ClockInDto, ClockOutDto, GetAttendanceDto } from './dto/attendance.dto';
+import { ClockInDto, ClockOutDto } from './dto/attendance.dto';
+import { AttendanceQueryDto } from './dto/attendance-query.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
-import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @Controller('attendance')
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
+  private resolveEmployeeId(jwtEmployeeId: string | undefined, bodyEmployeeId?: string): string {
+    const effective = jwtEmployeeId ?? bodyEmployeeId;
+    if (!effective) {
+      throw new BadRequestException(
+        'No employee linked to this account. Pass employeeId in the request body.',
+      );
+    }
+    return effective;
+  }
+
   @Post('clock-in')
   @HttpCode(HttpStatus.OK)
-  async clockIn(@CurrentUser('employeeId') employeeId: string, @Body() dto: ClockInDto) {
+  async clockIn(
+    @CurrentUser('employeeId') jwtEmployeeId: string | undefined,
+    @Body() dto: ClockInDto,
+  ) {
+    const employeeId = this.resolveEmployeeId(jwtEmployeeId, dto.employeeId);
     return this.attendanceService.clockIn(employeeId, dto.notes);
   }
 
   @Post('clock-out')
   @HttpCode(HttpStatus.OK)
-  async clockOut(@CurrentUser('employeeId') employeeId: string, @Body() dto: ClockOutDto) {
+  async clockOut(
+    @CurrentUser('employeeId') jwtEmployeeId: string | undefined,
+    @Body() dto: ClockOutDto,
+  ) {
+    const employeeId = this.resolveEmployeeId(jwtEmployeeId, dto.employeeId);
     return this.attendanceService.clockOut(employeeId, dto.notes);
   }
 
@@ -40,7 +59,7 @@ export class AttendanceController {
   }
 
   @Get()
-  async findAll(@CurrentTenant() tenantId: string, @Query() query: PaginationDto) {
+  async findAll(@CurrentTenant() tenantId: string, @Query() query: AttendanceQueryDto) {
     return this.attendanceService.findAll(tenantId, query);
   }
 }

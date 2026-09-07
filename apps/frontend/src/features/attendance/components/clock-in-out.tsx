@@ -11,13 +11,13 @@ export function ClockInOut() {
   const clockOut = useClockOut();
 
   const handleClockIn = () => {
-    clockIn.mutate("current-user", {
+    clockIn.mutate(undefined, {
       onSuccess: () => setCurrentStatus("clocked-in"),
     });
   };
 
   const handleClockOut = () => {
-    clockOut.mutate("current-user", {
+    clockOut.mutate(undefined, {
       onSuccess: () => setCurrentStatus("clocked-out"),
     });
   };

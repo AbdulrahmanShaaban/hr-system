@@ -1,17 +1,23 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { Prisma } from '@prisma/client';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { AttendanceQueryDto } from './dto/attendance-query.dto';
 
 @Injectable()
 export class AttendanceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async clockIn(employeeId: string, notes?: string) {
-    const employee = await this.prisma.employee.findUniqueOrThrow({
+    if (!employeeId) {
+      throw new BadRequestException('employeeId is required');
+    }
+    const employee = await this.prisma.employee.findUnique({
       where: { id: employeeId },
       include: { shift: true },
     });
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -64,6 +70,9 @@ export class AttendanceService {
   }
 
   async clockOut(employeeId: string, notes?: string) {
+    if (!employeeId) {
+      throw new BadRequestException('employeeId is required');
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -114,9 +123,25 @@ export class AttendanceService {
     });
   }
 
-  async findAll(tenantId: string, query: PaginationDto) {
+  async findAll(tenantId: string, query: AttendanceQueryDto) {
     const { page = 1, limit = 20, search, sortBy = 'date', sortOrder = 'desc' } = query;
     const where: Prisma.AttendanceWhereInput = { tenantId };
+    if (query.employeeId) {
+      where.employeeId = query.employeeId;
+    }
+    if (query.startDate || query.endDate) {
+      where.date = {};
+      if (query.startDate) {
+        const start = new Date(query.startDate);
+        start.setHours(0, 0, 0, 0);
+        where.date.gte = start;
+      }
+      if (query.endDate) {
+        const end = new Date(query.endDate);
+        end.setHours(23, 59, 59, 999);
+        where.date.lte = end;
+      }
+    }
     if (search) {
       where.OR = [
         { employee: { firstName: { contains: search, mode: 'insensitive' } } },

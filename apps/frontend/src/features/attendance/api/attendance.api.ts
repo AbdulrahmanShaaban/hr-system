@@ -6,13 +6,13 @@ export const attendanceApi = {
     const params: Record<string, string> = {};
     if (filters?.startDate) params.startDate = filters.startDate;
     if (filters?.endDate) params.endDate = filters.endDate;
-    if (filters?.employeeId) params.employeeId = filters.employeeId;
+    if (filters?.employeeId && filters.employeeId !== "all") params.employeeId = filters.employeeId;
     return api.get<{ data: AttendanceRecord[]; total: number }>("/attendance", { params: Object.keys(params).length ? params : undefined });
   },
 
-  clockIn: (employeeId: string) =>
-    api.post<AttendanceRecord>("/attendance/clock-in", { employeeId }),
+  clockIn: (notes?: string) =>
+    api.post<AttendanceRecord>("/attendance/clock-in", notes ? { notes } : {}),
 
-  clockOut: (employeeId: string) =>
-    api.post<AttendanceRecord>("/attendance/clock-out", { employeeId }),
+  clockOut: (notes?: string) =>
+    api.post<AttendanceRecord>("/attendance/clock-out", notes ? { notes } : {}),
 };
