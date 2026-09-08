@@ -82,8 +82,20 @@ export class EmployeeController {
   private async updateEmployee(tenantId: string, id: string, body: Record<string, unknown>) {
     const ALLOWED_STATUS = ['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'SUSPENDED'] as const;
     const data: Prisma.EmployeeUpdateInput = {};
+
+    // Handle name split into firstName/lastName (similar to create flow)
+    if (typeof body.name === 'string') {
+      const parts = body.name.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        data.firstName = parts[0];
+        data.lastName = parts.slice(1).join(' ');
+      } else {
+        data.firstName = body.name.trim();
+      }
+    }
     if (typeof body.firstName === 'string') data.firstName = body.firstName;
     if (typeof body.lastName === 'string') data.lastName = body.lastName;
+
     if (typeof body.phone === 'string') data.phone = body.phone;
     if (typeof body.avatar === 'string') data.avatar = body.avatar;
     if (typeof body.position === 'string') data.position = body.position;

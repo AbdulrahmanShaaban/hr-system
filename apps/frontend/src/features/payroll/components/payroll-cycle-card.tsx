@@ -7,16 +7,25 @@ import { FileText, Play } from "lucide-react";
 import type { PayrollCycle } from "../types/payroll.types";
 
 const statusVariantMap: Record<PayrollCycle["status"], "default" | "warning" | "success"> = {
-  draft: "default",
-  processing: "warning",
-  completed: "success",
+  DRAFT: "default",
+  PROCESSING: "warning",
+  COMPLETED: "success",
+  FINALIZED: "success",
+  PAID: "success",
 };
 
 const statusLabelMap: Record<PayrollCycle["status"], string> = {
-  draft: "مسودة",
-  processing: "قيد المعالجة",
-  completed: "مكتملة",
+  DRAFT: "مسودة",
+  PROCESSING: "قيد المعالجة",
+  COMPLETED: "مكتملة",
+  FINALIZED: "مؤمّنة",
+  PAID: "مدفوعة",
 };
+
+const monthNames = [
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+];
 
 interface PayrollCycleCardProps {
   cycle: PayrollCycle;
@@ -24,6 +33,8 @@ interface PayrollCycleCardProps {
 }
 
 export function PayrollCycleCard({ cycle, onProcess }: PayrollCycleCardProps) {
+  const monthName = monthNames[cycle.month - 1] ?? cycle.month;
+
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <CardContent className="p-6">
@@ -35,11 +46,8 @@ export function PayrollCycleCard({ cycle, onProcess }: PayrollCycleCardProps) {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">
-                  {cycle.month} {cycle.year}
+                  {monthName} {cycle.year}
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  {cycle.payslipCount} قسيمة راتب
-                </p>
               </div>
             </div>
           </div>
@@ -47,13 +55,7 @@ export function PayrollCycleCard({ cycle, onProcess }: PayrollCycleCardProps) {
         </div>
 
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-lg font-bold text-foreground">
-            {new Intl.NumberFormat("ar-EG", {
-              style: "currency",
-              currency: "EGP",
-            }).format(cycle.totalAmount)}
-          </p>
-          {cycle.status === "draft" && onProcess && (
+          {cycle.status === "DRAFT" && onProcess && (
             <Button size="sm" onClick={() => onProcess(cycle.id)}>
               <Play className="h-4 w-4" />
               معالجة

@@ -12,14 +12,22 @@ function mapStatus(backendStatus: string): Employee["status"] {
 }
 
 function mapEmployee(raw: Record<string, unknown>): Employee {
+  const dept = raw.department as Record<string, unknown> | string | null | undefined;
+  const pos = raw.position as Record<string, unknown> | string | null | undefined;
+  const user = raw.user as Record<string, unknown> | null | undefined;
+
   return {
     id: String(raw.id ?? ""),
     firstName: String(raw.firstName ?? ""),
     lastName: String(raw.lastName ?? ""),
-    email: String(raw.email ?? ""),
+    email: typeof user?.email === "string" ? user.email : "",
     phone: (raw.phone as string) ?? undefined,
-    position: (raw.position as string) ?? "",
-    department: (raw.department as string) ?? "",
+    position: pos && typeof pos === "object" && pos !== null && "name" in pos
+      ? { id: String(pos.id ?? ""), name: String(pos.name ?? ""), ...pos } as Employee["position"]
+      : (pos as string) ?? "",
+    department: dept && typeof dept === "object" && dept !== null && "name" in dept
+      ? { id: String(dept.id ?? ""), name: String(dept.name ?? ""), ...dept } as Employee["department"]
+      : (dept as string) ?? "",
     status: mapStatus(String(raw.status ?? "ACTIVE")),
     joinDate: raw.hireDate ? String(raw.hireDate).slice(0, 10) : raw.createdAt ? String(raw.createdAt).slice(0, 10) : "",
     avatar: (raw.avatar as string) ?? undefined,

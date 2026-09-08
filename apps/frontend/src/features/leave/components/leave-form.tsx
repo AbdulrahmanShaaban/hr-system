@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCreateLeaveRequest } from "../hooks/use-leave";
+import { useLeaveTypes, useCreateLeaveRequest } from "../hooks/use-leave";
 
 interface LeaveFormProps {
   onSuccess: () => void;
@@ -24,12 +24,20 @@ export function LeaveForm({ onSuccess, onCancel }: LeaveFormProps) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
+  const { data: types, isLoading } = useLeaveTypes();
+
+  useEffect(() => {
+    if (!isLoading && types && types.length > 0) {
+      const defaultType = types.find((t) => t.name === "Annual Leave") || types[0];
+      setLeaveType(defaultType.id);
+    }
+  }, [isLoading, types]);
 
   const createRequest = useCreateLeaveRequest();
 
   const handleSubmit = () => {
     createRequest.mutate(
-      { leaveType, startDate, endDate, reason },
+      { leaveType: leaveType || "", startDate, endDate, reason },
       { onSuccess }
     );
   };
@@ -45,13 +53,18 @@ export function LeaveForm({ onSuccess, onCancel }: LeaveFormProps) {
             <SelectValue placeholder="اختر نوع الإجازة" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Annual Leave">إجازة سنوية</SelectItem>
-            <SelectItem value="Sick Leave">إجازة مرضية</SelectItem>
-            <SelectItem value="Personal Leave">إجازة شخصية</SelectItem>
-            <SelectItem value="Maternity Leave">إجازة أمومة</SelectItem>
-            <SelectItem value="Unpaid Leave">إجازة بدون راتب</SelectItem>
+            {isLoading ? (
+              <SelectItem disabled value="loading">جاري التحميل...</SelectItem>
+            ) : types?.map((type) => (
+              <SelectItem key={type.id} value={type.id}>
+                {type.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
+        {isLoading && (
+          <p className="text-xs text-muted-foreground mt-2">جاري تحميل أنواع الإجازة...</p>
+        )}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <Input

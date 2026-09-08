@@ -1,3 +1,12 @@
+export interface LoanType {
+  id: string;
+  name: string;
+  maxAmount: number;
+  tenantId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Loan {
   id: string;
   employeeName: string;
@@ -19,8 +28,6 @@ export interface LoanInstallment {
 }
 
 export interface CreateLoanPayload {
-  employeeId: string;
-  loanType: string;
+  loanTypeId: string;
   amount: number;
-  monthlyDeduction: number;
 }

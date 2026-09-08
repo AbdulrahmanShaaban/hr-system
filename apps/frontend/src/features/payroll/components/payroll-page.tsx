@@ -22,15 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { PayrollCycleCard } from "./payroll-cycle-card";
 import { usePayrollCycles, useCreateCycle, useProcessCycle } from "../hooks/use-payroll";
 
-const months = [
+const monthNames = [
   "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
   "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
-];
-
-const placeholderCycles = [
-  { id: "1", month: "أكتوبر", year: 2025, status: "completed" as const, payslipCount: 142, totalAmount: 2450000, createdAt: "2025-10-01" },
-  { id: "2", month: "سبتمبر", year: 2025, status: "completed" as const, payslipCount: 138, totalAmount: 2380000, createdAt: "2025-09-01" },
-  { id: "3", month: "نوفمبر", year: 2025, status: "draft" as const, payslipCount: 0, totalAmount: 0, createdAt: "2025-11-01" },
 ];
 
 const kpiData = [
@@ -49,12 +43,13 @@ export function PayrollPage() {
   const createCycle = useCreateCycle();
   const processCycle = useProcessCycle();
 
-  const cycles = data?.data || placeholderCycles;
+  const cycles = data || [];
 
   const handleCreate = () => {
     if (!selectedMonth) return;
+    const monthIndex = monthNames.indexOf(selectedMonth) + 1;
     createCycle.mutate(
-      { month: selectedMonth, year: parseInt(selectedYear) },
+      { month: monthIndex, year: parseInt(selectedYear) },
       { onSuccess: () => setCreateOpen(false) }
     );
   };
@@ -115,7 +110,7 @@ export function PayrollPage() {
                   <SelectValue placeholder="اختر الشهر" />
                 </SelectTrigger>
                 <SelectContent>
-                  {months.map((m) => (
+                  {monthNames.map((m) => (
                     <SelectItem key={m} value={m}>
                       {m}
                     </SelectItem>

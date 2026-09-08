@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,12 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useLoans, useCreateLoan } from "../hooks/use-loans";
+import { useLoans, useLoanTypes, useCreateLoan } from "../hooks/use-loans";
 import type { Loan } from "../types/loan.types";
 
 const placeholderLoans: Loan[] = [
   {
-    id: "1", employeeName: "أحمد حسن", loanType: "سلفة شخصية", amount: 50000, remaining: 35000,
+    id: "1", employeeName: "أحمد حسن", loanType: "Personal Loan", amount: 50000, remaining: 35000,
     monthlyDeduction: 2500, startDate: "2025-06-01", status: "ACTIVE",
     installments: [
       { id: "i1", amount: 2500, dueDate: "2025-07-01", paidDate: "2025-07-01", status: "PAID" },
@@ -44,7 +44,7 @@ const placeholderLoans: Loan[] = [
     ],
   },
   {
-    id: "2", employeeName: "سارة علي", loanType: "سلفة راتب", amount: 12000, remaining: 4000,
+    id: "2", employeeName: "سارة علي", loanType: "Advance Salary", amount: 12000, remaining: 4000,
     monthlyDeduction: 2000, startDate: "2025-08-01", status: "ACTIVE",
     installments: [
       { id: "i6", amount: 2000, dueDate: "2025-09-01", paidDate: "2025-09-01", status: "PAID" },
@@ -53,7 +53,7 @@ const placeholderLoans: Loan[] = [
     ],
   },
   {
-    id: "3", employeeName: "محمد خالد", loanType: "سلفة شخصية", amount: 20000, remaining: 0,
+    id: "3", employeeName: "محمد خالد", loanType: "Personal Loan", amount: 20000, remaining: 0,
     monthlyDeduction: 2000, startDate: "2024-12-01", status: "PAID",
     installments: [
       { id: "i9", amount: 2000, dueDate: "2025-01-01", paidDate: "2025-01-01", status: "PAID" },
@@ -84,6 +84,13 @@ export function LoansPage() {
   const [loanType, setLoanType] = useState("");
   const [amount, setAmount] = useState("");
   const [monthlyDeduction, setMonthlyDeduction] = useState("");
+  const { data: loanTypes, isLoading } = useLoanTypes();
+
+  useEffect(() => {
+    if (!isLoading && loanTypes && loanTypes.length > 0) {
+      setLoanType(loanTypes[0].id);
+    }
+  }, [isLoading, loanTypes]);
 
   const { data } = useLoans();
   const createLoan = useCreateLoan();
@@ -93,10 +100,8 @@ export function LoansPage() {
   const handleCreate = () => {
     createLoan.mutate(
       {
-        employeeId: "current-user",
-        loanType,
+        loanTypeId: loanType || "",
         amount: parseFloat(amount),
-        monthlyDeduction: parseFloat(monthlyDeduction),
       },
       { onSuccess: () => setCreateOpen(false) }
     );
@@ -197,9 +202,9 @@ export function LoansPage() {
                                     );
                                   })}
                                 </TableBody>
-                              </Table>
-                            </div>
-                          </TableCell>
+                               </Table>
+                             </div>
+                           </TableCell>
                         </TableRow>
                       )}
                     </React.Fragment>
@@ -286,11 +291,18 @@ export function LoansPage() {
                   <SelectValue placeholder="اختر نوع السلفة" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Personal Loan">سلفة شخصية</SelectItem>
-                  <SelectItem value="Advance Salary">سلفة راتب</SelectItem>
-                  <SelectItem value="Emergency Loan">سلفة طارئة</SelectItem>
+                  {isLoading ? (
+                    <SelectItem disabled value="loading">جاري التحميل...</SelectItem>
+                  ) : loanTypes?.map((lt) => (
+                    <SelectItem key={lt.id} value={lt.id}>
+                      {lt.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              {isLoading && (
+                <p className="text-xs text-muted-foreground mt-2">جاري تحميل أنواع السلفة...</p>
+              )}
             </div>
             <Input
               type="number"
@@ -313,7 +325,7 @@ export function LoansPage() {
             </Button>
             <Button
               onClick={handleCreate}
-              disabled={!loanType || !amount || !monthlyDeduction || createLoan.isPending}
+              disabled={!loanType || !amount || createLoan.isPending}
             >
               {createLoan.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               إرسال الطلب

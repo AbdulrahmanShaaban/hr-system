@@ -28,23 +28,23 @@ export class PayrollController {
 
   @Post('cycles/:id/process')
   @HttpCode(HttpStatus.OK)
-  async processCycle(@Param('id') id: string) {
-    return this.payrollService.processCycle(id);
+  async processCycle(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    return this.payrollService.processCycle(id, tenantId);
   }
 
   @Post('cycles/:id/finalize')
   @HttpCode(HttpStatus.OK)
-  async finalizeCycle(@Param('id') id: string) {
-    return this.payrollService.finalizePayrollCycle(id);
+  async finalizeCycle(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    return this.payrollService.finalizePayrollCycle(id, tenantId);
   }
 
   @Get('cycles/:id/payslips')
-  async getPayslips(@Param('id') id: string) {
-    return this.payrollService.getPayslips(id);
+  async getPayslips(@CurrentTenant() tenantId: string, @Param('id') id: string) {
+    return this.payrollService.getPayslips(id, tenantId);
   }
 
   @Post('adjustments')
-  async createAdjustment(@Body() dto: CreateAdjustmentDto) {
+  async createAdjustment(@CurrentTenant() tenantId: string, @Body() dto: CreateAdjustmentDto) {
     return this.payrollService.adjustPayslip(dto.employeeId, dto.payrollCycleId, {
       type: dto.type,
       amount: dto.amount,

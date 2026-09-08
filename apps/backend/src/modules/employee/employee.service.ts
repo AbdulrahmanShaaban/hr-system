@@ -24,7 +24,7 @@ export class EmployeeService {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { [sortBy]: sortOrder },
-        include: { department: true, role: true, shift: true },
+        include: { department: true, role: true, shift: true, user: { select: { email: true } } },
       }),
       this.prisma.employee.count({ where }),
     ]);
@@ -128,7 +128,11 @@ export class EmployeeService {
 
     // Frontend "INACTIVE" alias has no Prisma enum member → map to SUSPENDED.
     const rawStatus = dto.status?.toUpperCase().replace('-', '_');
-    const status = (rawStatus === 'INACTIVE' ? 'SUSPENDED' : rawStatus) as never;
+    const status = (
+      !rawStatus ? 'ACTIVE' :
+      rawStatus === 'INACTIVE' ? 'SUSPENDED' :
+      rawStatus
+    ) as 'ACTIVE' | 'ON_LEAVE' | 'TERMINATED' | 'SUSPENDED';
 
     const data: Prisma.EmployeeCreateInput = {
       tenant: { connect: { id: tenantId } },

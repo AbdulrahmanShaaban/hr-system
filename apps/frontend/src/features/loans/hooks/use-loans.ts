@@ -19,6 +19,13 @@ export function useLoan(id: string) {
   });
 }
 
+export function useLoanTypes() {
+  return useQuery({
+    queryKey: ["loans", "types"],
+    queryFn: loansApi.getLoanTypes,
+  });
+}
+
 export function useCreateLoan() {
   const queryClient = useQueryClient();
 

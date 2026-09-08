@@ -242,11 +242,14 @@ export class PayrollService {
     });
   }
 
-  async finalizePayrollCycle(cycleId: string) {
+  async finalizePayrollCycle(cycleId: string, tenantId?: string) {
     const cycle = await this.prisma.payrollCycle.findUniqueOrThrow({
       where: { id: cycleId },
       include: { payslips: true },
     });
+    if (tenantId && cycle.tenantId !== tenantId) {
+      throw new NotFoundException('Payroll cycle not found');
+    }
 
     if (cycle.status !== 'COMPLETED') {
       throw new BadRequestException('Cycle must be COMPLETED before finalizing');
@@ -304,10 +307,13 @@ export class PayrollService {
     });
   }
 
-  async processCycle(cycleId: string) {
+  async processCycle(cycleId: string, tenantId?: string) {
     const cycle = await this.prisma.payrollCycle.findUniqueOrThrow({
       where: { id: cycleId },
     });
+    if (tenantId && cycle.tenantId !== tenantId) {
+      throw new NotFoundException('Payroll cycle not found');
+    }
 
     if (cycle.status !== 'DRAFT') {
       throw new BadRequestException('Only DRAFT cycles can be processed');
@@ -329,6 +335,10 @@ export class PayrollService {
     const failures = results.filter((r) => r.status === 'rejected');
     if (failures.length > 0) {
       const errors = failures.map((f) => (f as PromiseRejectedResult).reason?.message ?? 'Unknown');
+      await this.prisma.payrollCycle.update({
+        where: { id: cycleId },
+        data: { status: 'DRAFT' },
+      });
       throw new BadRequestException(`Failed to process ${failures.length} payslips: ${errors.join('; ')}`);
     }
 
@@ -338,10 +348,19 @@ export class PayrollService {
     });
   }
 
-  async getPayslips(cycleId: string) {
+  async getPayslips(cycleId: string, tenantId?: string) {
+    if (tenantId) {
+      const cycle = await this.prisma.payrollCycle.findUnique({ where: { id: cycleId } });
+      if (!cycle || cycle.tenantId !== tenantId) {
+        throw new NotFoundException('Payroll cycle not found');
+      }
+    }
     return this.prisma.payslip.findMany({
       where: { payrollCycleId: cycleId },
-      include: { components: true, employee: true },
+      include: {
+        components: true,
+        employee: { select: { id: true, firstName: true, lastName: true, basicSalary: true } },
+      },
     });
   }
 }
